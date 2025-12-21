@@ -1,0 +1,40 @@
+/* @font-face {
+    font-family: "RubikWetPaint";
+    src: url("@/assets/fonts/RubikWetPaint-Regular.ttf") format("truetype");
+} */
+
+:root {
+    --font: "Roboto", sans-serif;
+    --color-accent: #A18A68;
+    --color-black: #000000;
+    --color-black-hover: #444444;
+    --color-dark-gray: #707070;
+    --color-gray: #D8D8D8;
+    --color-white: #FFFFFF;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    font-family: var(--font);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+    color: var(--color-black);
+    text-align: center;
+    font-size: 33px;
+    font-weight: 500;
+    line-height: 43px;
+}
+
+h1.left {
+    text-align: left;
+}
