@@ -22,11 +22,15 @@
             transform: `translateX(${activeIndex.value * 100}%)`
         }
     });
+
+    function next() { 
+        activeIndex.value = (activeIndex.value + 1) % props.images.length 
+    }
 </script>
 
 <template>
     <div class="product-gallery">
-        <!-- Левая колонка -->
+
         <div class="thumbnails">
         <img
             v-for="(img, index) in images"
@@ -39,7 +43,7 @@
         </div>
 
 
-        <div class="preview" :style="{ backgroundImage: `url(${API_URLimage}${images[activeIndex]})` }">
+        <div class="preview" :style="{ backgroundImage: `url(${API_URLimage}${images[activeIndex]})` } " @click="next">
             <div class="progress">
                 <span
                     class="progress__active"

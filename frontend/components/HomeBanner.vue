@@ -17,9 +17,14 @@ const slides = computed<Banner[]>(() => {
 
 console.log(`url(${API_URLimage}${slides.value[0]?.image})`);
 
-function next() { 
-    current.value = (current.value + 1) % slides.value.length 
+    function next() { 
+        current.value = (current.value + 1) % slides.value.length 
     }
+
+    const formattedPrice = computed(() => {
+        const value = Number( slides.value[current.value]?.product.price || 0);
+        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
+    });
 </script>
 
 <template>
@@ -30,7 +35,7 @@ function next() {
             <div v-for="(s, idx) in slides" :key="s.id" class="banner-slide"  :aria-hidden="idx !== current" :style="{ display: idx === current ? 'block' : 'none' }">
                 <div class="banner-content">
                     <h2 class="banner-title">{{ s.product.name }}</h2>
-                    <div class="banner-price">{{ s.product.price }} ₽</div>
+                    <div class="banner-price">{{ formattedPrice }}</div>
                     <NuxtLink :to="`/catalog/sup-${s.product.id}`" class="banner-cta">Перейти к товару</NuxtLink>
                 </div>
 
