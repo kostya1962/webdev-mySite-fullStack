@@ -2,13 +2,21 @@
 import GallerayProd from '~/components/GallerayProd.vue';
 import AddToCart from '~/components/AddToCart.vue';
 import type { ProductIDRsponse } from '~/interfaces/productID.interface';
+import { useFavoriteStore } from '~/state/favorite.state';
 
 
 
 
 const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
 const API_URL = useAPI();
+const fav_color = ref('');
+const favoriteState = useFavoriteStore();
 
+if (favoriteState.isFavorite(Number(route.params.id))) {
+    fav_color.value = '#A18A68';
+} else {
+    fav_color.value = '#FFFFFF';
+}
 
 const {data: productData } = await useFetch<ProductIDRsponse>(
     API_URL + '/products/' + route.params.id
@@ -31,6 +39,10 @@ const formattedPrice = computed(() => {
     })
 
     console.log(averageRating.value);
+
+    function onFavoriteClicked() {
+        fav_color.value = fav_color.value === '#A18A68' ? '#FFFFFF' : '#A18A68';
+    }
 </script>
 
 <template>
@@ -45,6 +57,19 @@ const formattedPrice = computed(() => {
             <RatingStars  :rating="averageRating" :reviews-count="productData?.reviews.length ?? 0"/>
             <div>
                 <AddToCart v-if="productData?.product" :product="productData.product" />
+            </div>
+            <div class="up__info__additional">
+                <AddFavorite :id="productData?.product.id ?? 0" :is-shown="true" :curcolor="fav_color" @clicked="onFavoriteClicked"/>
+                <div class="up__info__hr"></div>
+                <span class="up__info__social">
+                    <NuxtLink to="#">
+                        <Icon name="icons:vk" size="20px"/>
+                    </NuxtLink>
+                    <NuxtLink to="#">
+                        <Icon name="icons:tgc" size="20px"/>
+                    </NuxtLink>
+                </span>
+
             </div>
         </div>
     </div>
@@ -87,5 +112,29 @@ const formattedPrice = computed(() => {
     color: var(--color-dark-gray);
     font-size: 18px;
     line-height: 20px;
+}   
+
+.up__info__hr{
+    border-left: 1px solid var(--color-dark-gray);
+    height: 17px;
+    align-self: flex-start;
+    margin-top: 4px;
 }
+
+.up__info__additional   {
+    display: flex;
+    gap: 20px;
+}
+
+.up__info__social   {
+    display: flex;
+    color: var(--color-dark-gray);
+    gap: 20px;
+}
+
+.up__info__social a{
+    color: var(--color-dark-gray);
+}
+
+
 </style>

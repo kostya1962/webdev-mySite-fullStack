@@ -55,10 +55,6 @@ export const useCartStore = defineStore(
 
     // Удалить товар из корзины
     function removeFromCart(productId: number) {
-      if (!cartItems.value) {
-        return;
-      }
-
       cartItems.value = cartItems.value.filter(
         (item) => item.product.id !== productId
       );
@@ -74,10 +70,6 @@ export const useCartStore = defineStore(
 
     // Получить количество товара в корзине
     function getQuantity(productId: number): number {
-      if (!cartItems.value) {
-        return 0;
-      }
-
       return (
         cartItems.value.find((item) => item.product.id === productId)
           ?.quantity ?? 0
@@ -86,10 +78,6 @@ export const useCartStore = defineStore(
 
     // Получить общую стоимость
     function getTotalPrice(): number {
-      if (!cartItems.value) {
-        return 0;
-      }
-
       return cartItems.value.reduce(
         (total, item) => total + item.product.price * item.quantity,
         0
@@ -98,10 +86,6 @@ export const useCartStore = defineStore(
 
     // Получить количество товаров
     function getItemsCount(): number {
-      if (!cartItems.value) {
-        return 0;
-      }
-
       return cartItems.value.reduce((count, item) => count + item.quantity, 0);
     }
 
@@ -144,13 +128,9 @@ export const useCartStore = defineStore(
             email: email,
           },
         });
-        cartItems.value = data && Array.isArray(data) ? data : [];
+        cartItems.value = data;
       } catch (error) {
         console.error("Ошибка при загрузке корзины:", error);
-        // При ошибке инициализируем пустой массив
-        if (!cartItems.value) {
-          cartItems.value = [];
-        }
       }
     }
 

@@ -46,7 +46,7 @@
 
     .stars {
         display: flex;
-        gap: 2px;
+        gap: 5px;
     }
 
     .star--active {
