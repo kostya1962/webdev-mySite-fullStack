@@ -25,7 +25,7 @@ import type { Product } from '~/interfaces/product.interface';
                 - {{ product.discount }}%
             </span>
             <span v-else></span>
-            <AddFavorite :id="product.id" :is-shown="isHovered" curcolor="#A18A68"/>
+            <AddFavorite :id="product.id" :is-shown="isHovered" />
         </div>
         <div class="card__info">
             <div class="card__name">

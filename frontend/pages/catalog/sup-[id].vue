@@ -9,14 +9,8 @@ import { useFavoriteStore } from '~/state/favorite.state';
 
 const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
 const API_URL = useAPI();
-const fav_color = ref('');
 const favoriteState = useFavoriteStore();
 
-if (favoriteState.isFavorite(Number(route.params.id))) {
-    fav_color.value = '#A18A68';
-} else {
-    fav_color.value = '#FFFFFF';
-}
 
 const {data: productData } = await useFetch<ProductIDRsponse>(
     API_URL + '/products/' + route.params.id
@@ -38,11 +32,7 @@ const formattedPrice = computed(() => {
         : 0
     })
 
-    console.log(averageRating.value);
-
-    function onFavoriteClicked() {
-        fav_color.value = fav_color.value === '#A18A68' ? '#FFFFFF' : '#A18A68';
-    }
+  
 </script>
 
 <template>
@@ -55,11 +45,14 @@ const formattedPrice = computed(() => {
             <div class="up__info__price">{{ formattedPrice}}</div>
             <div class="up__info__description">{{ productData?.product.short_description }}</div>
             <RatingStars  :rating="averageRating" :reviews-count="productData?.reviews.length ?? 0"/>
-            <div>
+            <div class="push-card">
                 <AddToCart v-if="productData?.product" :product="productData.product" />
             </div>
             <div class="up__info__additional">
-                <AddFavorite :id="productData?.product.id ?? 0" :is-shown="true" :curcolor="fav_color" @clicked="onFavoriteClicked"/>
+                <div>
+                    <AddFavorite v-show="favoriteState.isFavorite(Number(route.params.id))" :id="productData?.product.id ?? 0" :is-shown="true" />
+                    <DelFavorite v-show="!favoriteState.isFavorite(Number(route.params.id))" :id="productData?.product.id ?? 0" :is-shown="true" />
+                </div>
                 <div class="up__info__hr"></div>
                 <span class="up__info__social">
                     <NuxtLink to="#">
@@ -70,6 +63,14 @@ const formattedPrice = computed(() => {
                     </NuxtLink>
                 </span>
 
+            </div>
+            <div class="info-row">
+                <span class="label">SKU:</span>
+                <span class="value">{{ productData?.product.sku || '—' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Категория:</span>
+                <span class="value">{{ productData?.product.category.name || '—' }}</span>
             </div>
         </div>
     </div>
@@ -88,14 +89,16 @@ const formattedPrice = computed(() => {
 .up__info{
     display: flex;
     flex-direction: column;
-    gap: 23px;
+    gap: 5px;
     margin-top: 1%;
+    width: 50%;
 }
 
 .up__info__name{
     font-size: 30px;
     line-height: 30px;
     font-weight: 100;
+    margin-bottom: 3%;
     color: var(--color-black);
 }
 
@@ -105,14 +108,23 @@ const formattedPrice = computed(() => {
     line-height: 26px;
     text-transform: capitalize;
     color: var(--color-accent);
-    margin-bottom: 15%;
+    margin-bottom: 10%;
 }
 
 .up__info__description{
     color: var(--color-dark-gray);
     font-size: 18px;
     line-height: 20px;
+    margin-bottom: 3%;
 }   
+
+.push-card{
+    margin-top: 10%;
+    margin-bottom: 5%;
+    width: 100%;
+}
+
+
 
 .up__info__hr{
     border-left: 1px solid var(--color-dark-gray);
@@ -124,17 +136,38 @@ const formattedPrice = computed(() => {
 .up__info__additional   {
     display: flex;
     gap: 20px;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5%;
 }
 
 .up__info__social   {
     display: flex;
     color: var(--color-dark-gray);
     gap: 20px;
+    
 }
 
 .up__info__social a{
     color: var(--color-dark-gray);
 }
 
+.up__info__social a:hover{
+    color: var(--color-black);
+}
 
+.info-row {
+    display: flex;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.info-row .label {
+    font-weight: 600;
+    color: var(--color-black); 
+}
+
+.info-row .value {
+    color: var(--color-dark-gray);
+}
 </style>

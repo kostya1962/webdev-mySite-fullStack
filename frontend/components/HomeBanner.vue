@@ -77,8 +77,13 @@ console.log(`url(${API_URLimage}${slides.value[0]?.image})`);
         gap: 12px;
         z-index: 3;
         align-items: center;
+        
+    }
+
+    .banner-dots button{
         cursor: pointer;
     }
+
     .dot {
         width: 12px;
         height: 12px;

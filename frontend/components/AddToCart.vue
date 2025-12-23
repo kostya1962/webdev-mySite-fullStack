@@ -41,28 +41,28 @@ quantity.value = newQuantity;
 </script>
 
 <template>
-<div class="add-to-cart">
-    <template v-if="!isAdded">
-    <ActionButton @click="handleAddClick">
-        Добавить в корзину
-    </ActionButton>
-    </template>
+    <div class="add-to-cart">
+        <div v-if="!isAdded" class="before-add">
+            <ActionButton @click="handleAddClick">
+                Добавить в корзину
+            </ActionButton>
+        </div>
 
 
-    <template v-else>
-    <div class="cart-controls">
-        <CounterFiled @quantity-change="handleQuantityChange" />
+        <div v-else>
+            <div class="cart-controls">
+                <CounterFiled @quantity-change="handleQuantityChange" />
 
-        <button class="confirm-btn" @click="handleConfirmAdd">
-        Добавить
-        </button>
+                <button class="confirm-btn" @click="handleConfirmAdd">
+                    Добавить
+                </button>
 
-        <button class="remove-btn" @click="isAdded = false">
-        Удалить
-        </button>
+                <button class="remove-btn" @click="isAdded = false">
+                    Отменить
+                </button>
+            </div>
+        </div>
     </div>
-    </template>
-</div>
 </template>
 
 <style scoped>
@@ -90,6 +90,11 @@ min-height: 44px;
 display: flex;
 align-items: center;
 justify-content: center;
+width: 40%;
+}
+
+.before-add button {
+    width: 100%;
 }
 
 .remove-btn {

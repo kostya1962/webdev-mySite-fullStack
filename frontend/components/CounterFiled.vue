@@ -31,13 +31,18 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        border-radius: 4px;
+        background-color: var(--color-gray);
+        height: 100%;
+        padding: 8px 0;
     }
 
     .btn {
         width: 32px;
         height: 32px;
-        border: 1px solid #ccc;
-        background-color: #f5f5f5;
+        border: none;
+        border-radius: 4px;
+        background-color: var(--color-gray);
         font-size: 18px;
         cursor: pointer;
     }

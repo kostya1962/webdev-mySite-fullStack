@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { useFavoriteStore } from '~/state/favorite.state';
 
-const { id, isShown } = defineProps<{
+const { id } = defineProps<{
     id: number;
-    isShown: boolean;
-
 }>(); 
 
 const favoriteState = useFavoriteStore();
 </script>
 
 <template>
-    <button v-show="isShown || favoriteState.isFavorite(id)" class="fav" @click.stop.prevent="() => favoriteState.toggleFavorite(id)">
-        <Icon name="icons:favorite-add" size="18px" />
+    <button class="fav" @click.stop.prevent="() => favoriteState.toggleFavorite(id)">
+        <Icon name="icons:empty-fav" size="18px" />
     </button>
 </template>
 

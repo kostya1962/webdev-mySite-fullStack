@@ -165,7 +165,6 @@
     gap: 32px;
 }
 
-/* Profile Section */
 .profile-section {
     border: 1px solid var(--color-gray);
     border-radius: 12px;

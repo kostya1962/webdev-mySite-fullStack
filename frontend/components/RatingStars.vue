@@ -41,7 +41,7 @@
     .rating {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 50px;
     }
 
     .stars {
