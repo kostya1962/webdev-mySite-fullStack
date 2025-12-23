@@ -107,6 +107,9 @@ const formattedPrice = computed(() => {
                     :key="review.id" 
                     v-bind="review"/>
             </div>
+            <div class="review-form">
+                <ReviewForm />
+            </div>
         </div>
     </div>
 </div></template>
@@ -244,6 +247,13 @@ const formattedPrice = computed(() => {
 
 .dawn_panel{
     display: flex;
-    gap: 24px;
+    gap: 10%;
+}
+
+.review-list{
+    width: 45%;
+}
+.review-form{
+    width: 45%;
 }
 </style>

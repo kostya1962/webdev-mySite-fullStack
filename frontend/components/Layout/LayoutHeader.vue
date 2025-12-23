@@ -15,7 +15,7 @@
             <div class="header__hr"></div>
             <div class="header__icons">
                 <NuxtLink to="#">
-                    <Icon name="icons:search" size="21px" style="color: #707070"/>
+                    <Icon name="icons:news" size="21px" style="color: #707070"/>
                 </NuxtLink>
                 <NuxtLink to="/cart">
                     <Icon name="icons:cart" size="21px" />

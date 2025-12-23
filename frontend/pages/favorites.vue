@@ -25,15 +25,27 @@ watchEffect(async () => {
 
 
 <template>
-    <div class="catalog__list">
-        <CatalogCard 
-                    v-for="product in products"
-                    :key="product.id"
-                    v-bind="product"/>
+    <div>
+        <h1>Избранное</h1>
+
+        <div v-show="!products.length" class="empty">Вы не выбрали ни одного товара</div>
+
+        <div class="catalog__list">
+            <CatalogCard 
+                        v-for="product in products"
+                        :key="product.id"
+                        v-bind="product"/>
+        </div>
     </div>
 </template>
 
 <style scoped>
+    .empty{
+        padding:40px;
+        text-align:center;
+        color:var(--color-gray);
+    }
+
     .catalog__list{
         display: grid;
         width: 100%;
