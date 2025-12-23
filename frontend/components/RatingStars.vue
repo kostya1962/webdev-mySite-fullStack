@@ -3,7 +3,6 @@
 
     interface Props {
         rating: number
-        reviewsCount: number
     }
 
     const props = defineProps<Props>()
@@ -30,9 +29,7 @@
         />
         </div>
 
-        <span class="reviews">
-        {{ reviewsCount }} отзыва
-        </span>
+
     </div>
 </template>
 

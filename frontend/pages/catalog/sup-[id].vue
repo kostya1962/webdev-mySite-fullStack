@@ -1,15 +1,14 @@
+<!-- eslint-disable vue/no-multiple-template-root -->
 <script setup lang="ts">
 import GallerayProd from '~/components/GallerayProd.vue';
 import AddToCart from '~/components/AddToCart.vue';
 import type { ProductIDRsponse } from '~/interfaces/productID.interface';
 import { useFavoriteStore } from '~/state/favorite.state';
 
-
-
-
 const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
 const API_URL = useAPI();
 const favoriteState = useFavoriteStore();
+const activeFlag = ref<number>(0);
 
 
 const {data: productData } = await useFetch<ProductIDRsponse>(
@@ -27,15 +26,22 @@ const formattedPrice = computed(() => {
     });
 
     const averageRating = computed(() => {
-    return productData.value?.reviews.length
-        ? productData.value.reviews.reduce((sum, r) => sum + r.rating, 0) / productData.value.reviews.length
-        : 0
+        return productData.value?.reviews.length
+            ? productData.value.reviews.reduce((sum, r) => sum + r.rating, 0) / productData.value.reviews.length
+            : 0
     })
 
-  
+  const countReviews = computed(() => {
+        return productData.value?.reviews.length ?? 0;
+    });
+
+    function setActiveFlag(val: number) {
+        activeFlag.value = val;
+    }
 </script>
 
 <template>
+<div>
     <div class="up">
         <div class="up__gallery">
             <GallerayProd :images="productData?.product.images ?? []" />
@@ -44,7 +50,15 @@ const formattedPrice = computed(() => {
             <div class="up__info__name">{{ productData?.product.name }}</div>
             <div class="up__info__price">{{ formattedPrice}}</div>
             <div class="up__info__description">{{ productData?.product.short_description }}</div>
-            <RatingStars  :rating="averageRating" :reviews-count="productData?.reviews.length ?? 0"/>
+            <div class="up__info__rating">
+                <RatingStars  :rating="averageRating" />
+                <span class="reviews">
+                    {{ countReviews?? 0 }} 
+                    <span v-show="countReviews > 4">отзывов</span>
+                    <span v-show="countReviews == 1">отзыв</span>
+                    <span v-show="countReviews > 1 && countReviews < 5">отзыва</span>
+                </span>
+            </div>
             <div class="push-card">
                 <AddToCart v-if="productData?.product" :product="productData.product" />
             </div>
@@ -74,12 +88,34 @@ const formattedPrice = computed(() => {
             </div>
         </div>
     </div>
-</template>
+
+    
+    <div class="dawn">
+        <div class="dawn__header">
+            <div class="dawn__header__btn" :class="{ blacklight: activeFlag === 0 }" @click="setActiveFlag(0)">Описание</div>
+            <button class="dawn__header__btn" :class="{ blacklight: activeFlag === 1 }" @click="setActiveFlag(1)">Отзывы({{ countReviews }})</button>
+        </div>
+
+        <div v-show="activeFlag === 0" class="dawn__description">
+            <p>{{ productData?.product.long_description }}</p>
+        </div>
+
+        <div v-show="activeFlag === 1" class="dawn_panel">
+            <div class="review-list">
+                <ReviewOne 
+                    v-for="review in productData?.reviews" 
+                    :key="review.id" 
+                    v-bind="review"/>
+            </div>
+        </div>
+    </div>
+</div></template>
 
 <style scoped>
 .up{
     display: flex;
     gap: 3%;
+    margin-bottom: 101px;
 }    
 
 .up__gallery{
@@ -117,6 +153,18 @@ const formattedPrice = computed(() => {
     line-height: 20px;
     margin-bottom: 3%;
 }   
+
+.up__info__rating{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 5%;
+}
+
+.reviews {
+    font-size: 14px;
+        color: var(--color-dark-gray); 
+    }
 
 .push-card{
     margin-top: 10%;
@@ -169,5 +217,33 @@ const formattedPrice = computed(() => {
 
 .info-row .value {
     color: var(--color-dark-gray);
+}
+
+.dawn__header {
+    border-bottom: 1px solid var(--color-gray);
+    display: flex;
+    gap: 85px;
+    margin-bottom: 43px;
+}
+
+.dawn__header__btn{
+    font-size: 20px;
+    line-height: 27px;
+    color: var(--color-black);
+    text-decoration: none;
+    padding-bottom: 16px;
+    margin-right: 32px;
+    background: none;
+    cursor: pointer;
+    border: none
+}
+
+.blacklight{
+    border-bottom: 1px solid var(--color-black);
+}
+
+.dawn_panel{
+    display: flex;
+    gap: 24px;
 }
 </style>
