@@ -186,8 +186,19 @@ func GetUserOrders(c *fiber.Ctx) error {
 		orders = append(orders, order)
 	}
 
+	// Также получим данные пользователя
+	var user models.User
+	err = database.DB.QueryRow("SELECT id, email, COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Email, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		// Если не удалось получить пользователя, вернём только заказы
+		return c.JSON(fiber.Map{
+			"orders": orders,
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"orders": orders,
+		"user":   user,
 	})
 }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GallerayProd from '~/components/GallerayProd.vue';
+import AddToCart from '~/components/AddToCart.vue';
 import type { ProductIDRsponse } from '~/interfaces/productID.interface';
 
 
@@ -38,10 +39,13 @@ const formattedPrice = computed(() => {
             <GallerayProd :images="productData?.product.images ?? []" />
         </div>
         <div class="up__info">
-            <h1>{{ productData?.product.name }}</h1>
-            <p>{{ formattedPrice}}</p>
-            <p>{{ productData?.product.short_description }}</p>
+            <div class="up__info__name">{{ productData?.product.name }}</div>
+            <div class="up__info__price">{{ formattedPrice}}</div>
+            <div class="up__info__description">{{ productData?.product.short_description }}</div>
             <RatingStars  :rating="averageRating" :reviews-count="productData?.reviews.length ?? 0"/>
+            <div>
+                <AddToCart v-if="productData?.product" :product="productData.product" />
+            </div>
         </div>
     </div>
 </template>
@@ -49,6 +53,39 @@ const formattedPrice = computed(() => {
 <style scoped>
 .up{
     display: flex;
-    gap: 10%;
+    gap: 3%;
 }    
+
+.up__gallery{
+    width: 50%;
+}
+
+.up__info{
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+    margin-top: 1%;
+}
+
+.up__info__name{
+    font-size: 30px;
+    line-height: 30px;
+    font-weight: 100;
+    color: var(--color-black);
+}
+
+.up__info__price{
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 26px;
+    text-transform: capitalize;
+    color: var(--color-accent);
+    margin-bottom: 15%;
+}
+
+.up__info__description{
+    color: var(--color-dark-gray);
+    font-size: 18px;
+    line-height: 20px;
+}
 </style>

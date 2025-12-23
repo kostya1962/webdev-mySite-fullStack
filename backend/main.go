@@ -69,6 +69,12 @@ func main() {
 	orders.Post("/auth", utils.AuthMiddleware, handlers.CreateOrderAuth) // Создание заказа для авторизованного пользователя
 	orders.Get("/", utils.AuthMiddleware, handlers.GetUserOrders)        // Получение заказов пользователя
 
+	// Корзина
+	cart := api.Group("/cart")
+	cart.Post("/", handlers.AddToCart)           // Добавить товар в корзину
+	cart.Get("/", handlers.GetCart)              // Получить корзину пользователя
+	cart.Delete("/", handlers.RemoveFromCart)    // Удалить товар из корзины
+
 	// Запуск сервера
 	log.Println("Server starting on :3000")
 	log.Fatal(app.Listen(":3000"))
