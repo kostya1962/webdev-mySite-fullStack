@@ -8,7 +8,8 @@ type User struct {
 	ID              int       `json:"id" db:"id"`
 	Email           string    `json:"email" db:"email"`
 	Password        string    `json:"-" db:"password"`
-	Name            string    `json:"name" db:"name"`
+	FirstName       string    `json:"first_name" db:"first_name"`
+	LastName        string    `json:"last_name" db:"last_name"`
 	Phone           string    `json:"phone" db:"phone"`
 	DeliveryAddress string    `json:"delivery_address" db:"delivery_address"`
 	CreatedAt       time.Time `json:"created_at" db:"created_at"`

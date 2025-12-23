@@ -47,16 +47,18 @@ type CreateOrderRequest struct {
 	ProductIDs      []int  `json:"product_ids" validate:"required,min=1"`
 	Email           string `json:"email" validate:"required,email"`
 	Password        string `json:"password" validate:"required,min=6"`
-	DeliveryAddress string `json:"delivery_address" validate:"required"`
-	Name            string `json:"name" validate:"required"`
+	FirstName       string `json:"first_name" validate:"required"`
+	LastName        string `json:"last_name" validate:"required"`
 	Phone           string `json:"phone" validate:"required"`
+	DeliveryAddress string `json:"delivery_address" validate:"required"`
 }
 
 type CreateOrderAuthRequest struct {
 	ProductIDs      []int  `json:"product_ids" validate:"required,min=1"`
-	DeliveryAddress string `json:"delivery_address" validate:"required"`
-	Name            string `json:"name" validate:"required"`
+	FirstName       string `json:"first_name" validate:"required"`
+	LastName        string `json:"last_name" validate:"required"`
 	Phone           string `json:"phone" validate:"required"`
+	DeliveryAddress string `json:"delivery_address" validate:"required"`
 }
 
 type OrderResponse struct {

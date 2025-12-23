@@ -33,7 +33,6 @@ async function submitOrder() {
     if (!cartStore.cartItems.length) return;
 
     const product_ids = cartStore.cartItems.map((i) => i.product.id);
-    const name = `${lastName.value} ${firstName.value}`.trim();
 
     try {
         await $fetch(`${API_URL}/orders/auth`, {
@@ -43,7 +42,8 @@ async function submitOrder() {
             },
             body: {
                 product_ids,
-                name,
+                first_name: firstName.value,
+                last_name: lastName.value,
                 phone: phone.value,
                 delivery_address: deliveryAddress.value,
             },
@@ -56,9 +56,7 @@ async function submitOrder() {
         console.error('Order submit error', e);
     }
 }
-</script>
 
-<script setup lang="ts">
 // computed-safe bindings to avoid null during hydration
 const items = computed(() => cartStore.cartItems ?? []);
 const itemsCount = computed(() => items.value.reduce((c, it) => c + (it.quantity || 0), 0));
@@ -78,10 +76,14 @@ const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product
                         <div class="name">{{ item.product.name }}</div>
                         <div class="sku">{{ item.product.sku }}</div>
                     </div>
-                        <div class="item-center">
-                            <input type="number" :value="item.quantity" min="1"
-                                @change="cartStore.updateQuantity(item.product.id, parseInt(($event.target as HTMLInputElement)?.value) || 1)" />
-                        </div>
+                    <div class="item-center">
+                        <input
+                            type="number"
+                            :value="item.quantity"
+                            min="1"
+                            @change="cartStore.updateQuantity(item.product.id, parseInt(($event.target as HTMLInputElement)?.value) || 1)"
+                        />
+                    </div>
                     <div class="item-right">
                         <div class="price">{{ item.product.price }} ₽</div>
                         <button class="remove" @click="cartStore.removeFromCart(item.product.id)">Удалить</button>

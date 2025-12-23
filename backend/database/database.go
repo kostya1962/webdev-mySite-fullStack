@@ -116,7 +116,8 @@ func createTables() {
 
 	// Добавляем новые поля в таблицу users если их нет
 	alterUserTable := []string{
-		"ALTER TABLE users ADD COLUMN name TEXT",
+		"ALTER TABLE users ADD COLUMN first_name TEXT",
+		"ALTER TABLE users ADD COLUMN last_name TEXT",
 		"ALTER TABLE users ADD COLUMN phone TEXT",
 		"ALTER TABLE users ADD COLUMN delivery_address TEXT",
 	}

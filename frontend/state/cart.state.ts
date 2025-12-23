@@ -12,6 +12,11 @@ export const useCartStore = defineStore(
 
     // Добавить товар в корзину (или увеличить количество)
     function addToCart(product: Product, quantity: number) {
+      // Инициализируем корзину если она пуста или null
+      if (!cartItems.value) {
+        cartItems.value = [];
+      }
+
       const existingItem = cartItems.value.find(
         (item) => item.product.id === product.id
       );
@@ -32,6 +37,11 @@ export const useCartStore = defineStore(
 
     // Обновить количество товара
     function updateQuantity(productId: number, quantity: number) {
+      if (!cartItems.value) {
+        cartItems.value = [];
+        return;
+      }
+
       const item = cartItems.value.find(
         (item) => item.product.id === productId
       );
@@ -45,6 +55,10 @@ export const useCartStore = defineStore(
 
     // Удалить товар из корзины
     function removeFromCart(productId: number) {
+      if (!cartItems.value) {
+        return;
+      }
+
       cartItems.value = cartItems.value.filter(
         (item) => item.product.id !== productId
       );
@@ -60,6 +74,10 @@ export const useCartStore = defineStore(
 
     // Получить количество товара в корзине
     function getQuantity(productId: number): number {
+      if (!cartItems.value) {
+        return 0;
+      }
+
       return (
         cartItems.value.find((item) => item.product.id === productId)
           ?.quantity ?? 0
@@ -68,6 +86,10 @@ export const useCartStore = defineStore(
 
     // Получить общую стоимость
     function getTotalPrice(): number {
+      if (!cartItems.value) {
+        return 0;
+      }
+
       return cartItems.value.reduce(
         (total, item) => total + item.product.price * item.quantity,
         0
@@ -76,6 +98,10 @@ export const useCartStore = defineStore(
 
     // Получить количество товаров
     function getItemsCount(): number {
+      if (!cartItems.value) {
+        return 0;
+      }
+
       return cartItems.value.reduce((count, item) => count + item.quantity, 0);
     }
 
@@ -118,9 +144,13 @@ export const useCartStore = defineStore(
             email: email,
           },
         });
-        cartItems.value = data;
+        cartItems.value = data && Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Ошибка при загрузке корзины:", error);
+        // При ошибке инициализируем пустой массив
+        if (!cartItems.value) {
+          cartItems.value = [];
+        }
       }
     }
 

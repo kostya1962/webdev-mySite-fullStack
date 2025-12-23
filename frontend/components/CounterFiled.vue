@@ -1,20 +1,20 @@
 <script setup lang="ts">
     const emit = defineEmits<{
-        (e: "update:count", value: number): void;
+        (e: "quantity-change", value: number): void;
     }>();
 
-
-    const count = ref<number>(0);
-
+    const count = ref<number>(1);
 
     const increment = (): void => {
         count.value++;
-        emit("update:count", count.value);
+        emit("quantity-change", count.value);
     };
 
     const decrement = (): void => {
-        count.value--;
-        emit("update:count", count.value);
+        if (count.value > 1) {
+            count.value--;
+            emit("quantity-change", count.value);
+        }
     };
 </script>
 
