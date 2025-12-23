@@ -13,8 +13,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 const API_URL = useRuntimeConfig().public.apiurl || '';
 
-const firstName = ref('');
-const lastName = ref('');
+const fullName = ref('');
 const phone = ref('');
 const deliveryAddress = ref('');
 
@@ -42,8 +41,7 @@ async function submitOrder() {
             },
             body: {
                 product_ids,
-                first_name: firstName.value,
-                last_name: lastName.value,
+                name: fullName.value,
                 phone: phone.value,
                 delivery_address: deliveryAddress.value,
             },
@@ -96,11 +94,8 @@ const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product
                 <div class="row"><span>Сумма:</span><span>{{ totalPrice }} ₽</span></div>
 
                 <div class="personal-form">
-                    <label>Фамилия</label>
-                    <input v-model="lastName" type="text" placeholder="Иванов" />
-
-                    <label>Имя</label>
-                    <input v-model="firstName" type="text" placeholder="Иван" />
+                    <label>Полное имя и фамилия</label>
+                    <input v-model="fullName" type="text" placeholder="Иван Иванов" />
 
                     <label>Телефон</label>
                     <input v-model="phone" type="tel" placeholder="+7 900 000 00 00" />

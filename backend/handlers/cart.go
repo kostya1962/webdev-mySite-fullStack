@@ -63,13 +63,14 @@ func AddToCart(c *fiber.Ctx) error {
 		userID, req.ProductID,
 	).Scan(&existingQuantity)
 
-	if err == sql.ErrNoRows {
+	switch err {
+	case sql.ErrNoRows:
 		// Добавляем новый товар в корзину
 		_, err = database.DB.Exec(
 			"INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)",
 			userID, req.ProductID, req.Quantity,
 		)
-	} else if err == nil {
+	case nil:
 		// Обновляем количество
 		_, err = database.DB.Exec(
 			"UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_id = ?",

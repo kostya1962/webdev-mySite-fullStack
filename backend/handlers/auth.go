@@ -81,9 +81,9 @@ func Login(c *fiber.Ctx) error {
 	// Ищем пользователя
 	var user models.User
 	err := database.DB.QueryRow(
-		"SELECT id, email, password, COALESCE(first_name, ''), COALESCE(last_name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE email = ?",
+		"SELECT id, email, password, COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE email = ?",
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.Email, &user.Password, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
 
 	if err == sql.ErrNoRows {
 		return c.Status(401).JSON(fiber.Map{

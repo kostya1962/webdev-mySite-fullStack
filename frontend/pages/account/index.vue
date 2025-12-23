@@ -77,12 +77,8 @@
                         <span class="value">{{ user.email }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Фамилия:</span>
-                        <span class="value">{{ user.last_name || '—' }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Имя:</span>
-                        <span class="value">{{ user.first_name || '—' }}</span>
+                        <span class="label">Фамилия и имя:</span>
+                        <span class="value">{{ user.name || '—' }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Телефон:</span>
