@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { LoginResponse } from '~/interfaces/auth.interface';
 import { useAuthStore } from '~/state/auth.state';
@@ -9,19 +10,50 @@ import { useFavoriteStore } from '~/state/favorite.state';
     const authStore = useAuthStore();
     const favoriteStore = useFavoriteStore();
 
-    async function login(){
-        const data = await $fetch<LoginResponse>(API_URL + '/auth/login', {
-            method: 'POST',
-            body: {
-                email: email.value,
-                password: password.value,
-            },
-        });
-        authStore.setToken(data.token);
-        authStore.setEmail(data.user.email);
-        await favoriteStore.restore(data.user.email);
+    const showToast = ref<boolean>(false)
+    const toastMessage = ref<string>('')
+    const toastState = ref<string>('')
 
-        navigateTo('/account');
+    function openToast(message: string, state: string): void {
+        toastMessage.value = message
+        toastState.value = state
+        showToast.value = true
+
+        setTimeout(() => {
+            showToast.value = false
+        }, 3000)
+    }
+
+    async function login(){
+        if (!email.value || !password.value) {
+            openToast('Пожалуйста, заполните все поля', 'info')
+            return
+        }
+
+        try{
+            const data = await $fetch<LoginResponse>(API_URL + '/auth/login', {
+                method: 'POST',
+                body: {
+                    email: email.value,
+                    password: password.value,
+                },
+            });
+            authStore.setToken(data.token);
+            authStore.setEmail(data.user.email);
+            await favoriteStore.restore(data.user.email);
+
+            navigateTo('/account');
+        
+        } catch (error: any) {
+
+            console.log('error', error);
+        
+            if (error?.status === 401) {
+                openToast('Неверный email или пароль', 'error')
+                return
+            }
+            openToast('Ошибка авторизации. Попробуйте позже', 'error')
+        }
     }
 </script>
 
@@ -36,8 +68,8 @@ import { useFavoriteStore } from '~/state/favorite.state';
 
         <form action="" class="login-form">
             <div class="login-form__fileds">
-                <InputFiled v-model="email" variant="gray" placeholder="Email"/>
-                <InputFiled v-model="password" variant="gray" type="password" placeholder="Пароль" />
+                <InputFiled v-model="email" variant="gray" placeholder="Email" required/>
+                <InputFiled v-model="password" variant="gray" type="password" placeholder="Пароль" required/>
             </div>
             <div class="login-form__actions">
                 <ActionButton @click.stop.prevent="login" >
@@ -47,6 +79,13 @@ import { useFavoriteStore } from '~/state/favorite.state';
             </div>
             
         </form>
+        
+        <InfoWindow
+            v-if="showToast"
+            :message="toastMessage"
+            :duration="100000"
+            :variant="toastState"
+        />
     </div>
 </template>
 
