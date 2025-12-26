@@ -33,8 +33,8 @@
 <template>
     <Transition name="toast">
         <div v-if="visible" class="toast">
-            <Icon v-if="state === 'success'" name="icons:access" size="21px"/>
-            <Icon v-else-if="state === 'error'" name="icons:error" size="21px"/>
+            <Icon v-if="state === 'success'" name="icons:success" size="25px"/>
+            <Icon v-else-if="state === 'error'" name="icons:err" size="30px"/>
             <Icon v-else name="icons:info" size="21px"/>
             <span class="text">{{ message }}</span>
         </div>
@@ -59,13 +59,13 @@
         z-index: 9999;
     }
 
-    /* Общая анимация */
+
     .toast-enter-active,
     .toast-leave-active {
     transition: opacity 0.35s ease, transform 0.35s ease;
     }
 
-    /* Появление */
+ 
     .toast-enter-from {
     opacity: 0;
     transform: translateX(-50%) translateY(30px);
@@ -76,7 +76,7 @@
     transform: translateX(-50%) translateY(0);
     }
 
-    /* Исчезновение */
+
     .toast-leave-from {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
