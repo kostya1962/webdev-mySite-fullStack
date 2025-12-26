@@ -14,7 +14,7 @@
             </div>
             <div class="header__hr"></div>
             <div class="header__icons">
-                <NuxtLink to="#">
+                <NuxtLink to="/news">
                     <Icon name="icons:news" size="21px" style="color: #707070"/>
                 </NuxtLink>
                 <NuxtLink to="/cart">

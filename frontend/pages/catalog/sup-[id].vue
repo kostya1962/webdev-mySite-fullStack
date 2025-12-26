@@ -2,11 +2,14 @@
 <script setup lang="ts">
 import GallerayProd from '~/components/GallerayProd.vue';
 import AddToCart from '~/components/AddToCart.vue';
+import ReviewForm from '~/components/ReviewForm.vue';
 import type { ProductIDRsponse } from '~/interfaces/productID.interface';
 import { useFavoriteStore } from '~/state/favorite.state';
+import { useAuthStore } from '~/state/auth.state';
 
 const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
 const API_URL = useAPI();
+const authStore = useAuthStore()
 const favoriteState = useFavoriteStore();
 const activeFlag = ref<number>(0);
 
@@ -37,6 +40,27 @@ const formattedPrice = computed(() => {
 
     function setActiveFlag(val: number) {
         activeFlag.value = val;
+    }
+
+    async function onSubmitReview(payload: { name: string; text: string; rating: number; save_to_account?: boolean }) {
+        try {
+            const headers: Record<string,string> = { 'Content-Type': 'application/json' }
+            if (authStore.token) {
+                headers['Authorization'] = 'Bearer ' + authStore.token
+            }
+
+            await $fetch(API_URL + '/products/' + route.params.id + '/reviews', {
+                method: 'POST',
+                body: payload,
+                headers,
+            })
+
+            // обновляем данные товара, включая отзывы
+        const res = await $fetch<ProductIDRsponse>(API_URL + '/products/' + route.params.id)
+            productData.value = res
+        } catch (e) {
+            console.error('Failed to send review', e)
+        }
     }
 </script>
 
@@ -108,7 +132,7 @@ const formattedPrice = computed(() => {
                     v-bind="review"/>
             </div>
             <div class="review-form">
-                <ReviewForm />
+                <ReviewForm @submit-review="onSubmitReview" />
             </div>
         </div>
     </div>
@@ -247,13 +271,13 @@ const formattedPrice = computed(() => {
 
 .dawn_panel{
     display: flex;
-    gap: 10%;
+    gap: 9%;
 }
 
 .review-list{
-    width: 45%;
+    width: 50%;
 }
 .review-form{
-    width: 45%;
+    width: 50%;
 }
 </style>

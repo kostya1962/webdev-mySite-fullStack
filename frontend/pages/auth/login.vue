@@ -92,7 +92,7 @@ import { useFavoriteStore } from '~/state/favorite.state';
 <style scoped>
     .auth-root{
         max-width: 520px;
-        margin: 64px auto 0 auto;
+        margin: 64px auto 270px auto;
         padding: 0 16px;
     }
 

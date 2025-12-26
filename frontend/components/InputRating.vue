@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-    import { computed } from 'vue'
+    import { computed, ref } from 'vue'
 
     interface Props {
         modelValue: number
@@ -13,8 +13,12 @@
 
     const maxStars = 5
 
-    const filledStars = computed(() => {
-        return Math.floor(props.modelValue)
+    const hoveredStar = ref<number | null>(null)
+
+    const activeStars = computed(() => {
+        return hoveredStar.value !== null
+            ? hoveredStar.value
+            : Math.floor(props.modelValue)
     })
 
     function setRating(value: number) {
@@ -26,16 +30,18 @@
     <div class="rating">
         <div class="stars">
             <Icon
-            v-for="index in maxStars"
-            :key="index"
-            name="icons:star"
-            size="21px"
-            class="star"
-            :class="{
-                'star--active': index <= filledStars,
-                'star--inactive': index > filledStars
-            }"
-            @click="setRating(index)"
+                v-for="index in maxStars"
+                :key="index"
+                name="icons:star"
+                size="21px"
+                class="star"
+                :class="{
+                    'star--active': index <= activeStars,
+                    'star--inactive': index > activeStars
+                }"
+                @mouseenter="hoveredStar = index"
+                @mouseleave="hoveredStar = null"
+                @click="setRating(index)"
             />
         </div>
     </div>

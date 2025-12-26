@@ -61,7 +61,7 @@ async function signup() {
             </div>
 
             <label class="agree">
-                <input type="checkbox" v-model="agree" />
+                <input v-model="agree" type="checkbox"  />
                 <span>Согласен на обработку персональных данных</span>
             </label>
 
@@ -81,7 +81,7 @@ async function signup() {
 <style scoped>
     .signup-root{
         max-width: 520px;
-        margin: 64px auto 0 auto;
+        margin: 64px auto 270px auto;
         padding: 0 16px;
     }
 
