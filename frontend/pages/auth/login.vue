@@ -40,6 +40,7 @@ import { useFavoriteStore } from '~/state/favorite.state';
             });
             authStore.setToken(data.token);
             authStore.setEmail(data.user.email);
+            authStore.setRole?.(data.user.role || 'user');
             await favoriteStore.restore(data.user.email);
 
             navigateTo('/account');

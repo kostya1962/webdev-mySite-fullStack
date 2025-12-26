@@ -1,8 +1,12 @@
 package database
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func SeedData() {
@@ -210,4 +214,17 @@ func SeedData() {
 
 	
 	log.Println("Jewelry store data seeded successfully")
+
+	// Создадим администратора по умолчанию если его нет
+	var adminID int
+	err := DB.QueryRow("SELECT id FROM users WHERE email = ?", "admin@example.com").Scan(&adminID)
+	if err == sql.ErrNoRows {
+		hashed, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		_, err := DB.Exec("INSERT INTO users (email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", "admin@example.com", string(hashed), "admin", time.Now(), time.Now())
+		if err != nil {
+			log.Printf("Failed to create admin user: %v", err)
+		} else {
+			log.Println("Default admin created: admin@example.com / admin123")
+		}
+	}
 }

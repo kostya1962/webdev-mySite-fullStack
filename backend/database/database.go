@@ -31,6 +31,7 @@ func createTables() {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		email TEXT UNIQUE NOT NULL,
 		password TEXT NOT NULL,
+		role TEXT DEFAULT 'user',
 		name TEXT,
 		phone TEXT,
 		delivery_address TEXT,
@@ -129,6 +130,7 @@ func createTables() {
 		"ALTER TABLE users ADD COLUMN name TEXT",
 		"ALTER TABLE users ADD COLUMN phone TEXT",
 		"ALTER TABLE users ADD COLUMN delivery_address TEXT",
+		"ALTER TABLE users ADD COLUMN role TEXT",
 	}
 
 	for _, alter := range alterUserTable {

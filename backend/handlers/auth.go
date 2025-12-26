@@ -38,8 +38,8 @@ func Register(c *fiber.Ctx) error {
 
 	// Создаем пользователя
 	result, err := database.DB.Exec(
-		"INSERT INTO users (email, password, created_at, updated_at) VALUES (?, ?, ?, ?)",
-		req.Email, string(hashedPassword), time.Now(), time.Now(),
+		"INSERT INTO users (email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+		req.Email, string(hashedPassword), "user", time.Now(), time.Now(),
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -50,7 +50,7 @@ func Register(c *fiber.Ctx) error {
 	userID, _ := result.LastInsertId()
 
 	// Генерируем токен
-	token, err := utils.GenerateToken(int(userID), req.Email)
+	token, err := utils.GenerateToken(int(userID), req.Email, "user")
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Failed to generate token",
@@ -60,6 +60,7 @@ func Register(c *fiber.Ctx) error {
 	user := models.User{
 		ID:        int(userID),
 		Email:     req.Email,
+		Role:      "user",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -81,9 +82,9 @@ func Login(c *fiber.Ctx) error {
 	// Ищем пользователя
 	var user models.User
 	err := database.DB.QueryRow(
-		"SELECT id, email, password, COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE email = ?",
+		"SELECT id, email, password, COALESCE(role, 'user'), COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE email = ?",
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.Password, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.Email, &user.Password, &user.Role, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
 
 	if err == sql.ErrNoRows {
 		return c.Status(401).JSON(fiber.Map{
@@ -105,7 +106,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Генерируем токен
-	token, err := utils.GenerateToken(user.ID, user.Email)
+	token, err := utils.GenerateToken(user.ID, user.Email, user.Role)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Failed to generate token",

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/state/auth.state';
 
+    const auth = useAuthStore()
+    const isAdmin = computed(() => auth.role === 'admin')
 </script>
 
 <template>
@@ -9,6 +12,7 @@
         </NuxtLink>
         <div class="header__right">
             <div class="header__menu">
+                <NuxtLink v-if="isAdmin" to="/admin" >АДМИН</NuxtLink>
                 <NuxtLink to="/catalog">МАГАЗИН</NuxtLink>
                 <NuxtLink to="/about">О НАС</NuxtLink>
             </div>

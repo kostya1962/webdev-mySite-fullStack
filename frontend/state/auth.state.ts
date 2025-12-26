@@ -3,6 +3,7 @@ export const useAuthStore = defineStore(
   () => {
     const token = ref<string | undefined>();
     const email = ref<string | undefined>();
+    const role = ref<string | undefined>();
 
     function setToken(val: string) {
       token.value = val;
@@ -12,11 +13,28 @@ export const useAuthStore = defineStore(
       email.value = val;
     }
 
+    function setRole(val: string) {
+      role.value = val;
+    }
+
     function clearToken() {
       token.value = undefined;
     }
 
-    return { token, email, setToken, setEmail, clearToken };
+    function clearRole() {
+      role.value = undefined;
+    }
+
+    return {
+      token,
+      email,
+      role,
+      setToken,
+      setEmail,
+      setRole,
+      clearToken,
+      clearRole,
+    };
   },
   {
     persist: true,

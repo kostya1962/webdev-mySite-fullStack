@@ -8,6 +8,7 @@ type User struct {
 	ID              int       `json:"id" db:"id"`
 	Email           string    `json:"email" db:"email"`
 	Password        string    `json:"-" db:"password"`
+	Role            string    `json:"role" db:"role"`
 	Name            string    `json:"name" db:"name"`
 	Phone           string    `json:"phone" db:"phone"`
 	DeliveryAddress string    `json:"delivery_address" db:"delivery_address"`

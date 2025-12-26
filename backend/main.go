@@ -68,6 +68,17 @@ func main() {
 	news := api.Group("/news")
 	news.Get("/", handlers.GetNews)
 
+	// Админ-панель (требует авторизацию и роль admin)
+	admin := api.Group("/admin", utils.AuthMiddleware, utils.AdminMiddleware)
+	admin.Post("/backup", handlers.AdminBackup)
+	admin.Post("/products", handlers.AdminCreateProduct)
+	
+	// Generic admin CRUD endpoints for all resources
+	admin.Get("/:resource", handlers.AdminGetResource)           // GET /api/admin/{resource}
+	admin.Post("/:resource", handlers.AdminCreateResource)       // POST /api/admin/{resource}
+	admin.Put("/:resource/:id", handlers.AdminUpdateResource)    // PUT /api/admin/{resource}/{id}
+	admin.Delete("/:resource/:id", handlers.AdminDeleteResource) // DELETE /api/admin/{resource}/{id}
+
 	// Заказы
 	orders := api.Group("/orders")
 	orders.Post("/", handlers.CreateOrder)                               // Создание заказа с регистрацией

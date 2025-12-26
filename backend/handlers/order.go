@@ -81,7 +81,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	// Генерируем токен
-	token, err := utils.GenerateToken(int(userID), req.Email)
+	token, err := utils.GenerateToken(int(userID), req.Email, "user")
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": "Failed to generate token",
@@ -188,7 +188,7 @@ func GetUserOrders(c *fiber.Ctx) error {
 
 	// Также получим данные пользователя
 	var user models.User
-	err = database.DB.QueryRow("SELECT id, email, COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Email, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
+	err = database.DB.QueryRow("SELECT id, email, COALESCE(role, 'user'), COALESCE(name, ''), COALESCE(phone, ''), COALESCE(delivery_address, ''), created_at, updated_at FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Email, &user.Role, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		// Если не удалось получить пользователя, вернём только заказы
 		return c.JSON(fiber.Map{
@@ -210,7 +210,7 @@ func getOrderWithProducts(orderID int) (*models.Order, error) {
 
 	query := `
 		SELECT o.id, o.user_id, o.product_ids, o.status, o.created_at,
-			   u.id, u.email, COALESCE(u.name, ''), COALESCE(u.phone, ''), COALESCE(u.delivery_address, ''), u.created_at, u.updated_at
+			   u.id, u.email, COALESCE(u.role, 'user'), COALESCE(u.name, ''), COALESCE(u.phone, ''), COALESCE(u.delivery_address, ''), u.created_at, u.updated_at
 		FROM orders o
 		JOIN users u ON o.user_id = u.id
 		WHERE o.id = ?
@@ -218,7 +218,7 @@ func getOrderWithProducts(orderID int) (*models.Order, error) {
 
 	err := database.DB.QueryRow(query, orderID).Scan(
 		&order.ID, &order.UserID, &order.ProductIDs, &order.Status, &order.CreatedAt,
-		&user.ID, &user.Email, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Email, &user.Role, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
 		return nil, err

@@ -33,6 +33,19 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	// Сохраняем данные пользователя в контексте
 	c.Locals("userID", claims.UserID)
 	c.Locals("userEmail", claims.Email)
+	c.Locals("role", claims.Role)
 
+	return c.Next()
+}
+
+// AdminMiddleware проверяет роль администратора
+func AdminMiddleware(c *fiber.Ctx) error {
+	roleVal := c.Locals("role")
+	roleStr, ok := roleVal.(string)
+	if !ok || roleStr != "admin" {
+		return c.Status(403).JSON(fiber.Map{
+			"error": "Admin access required",
+		})
+	}
 	return c.Next()
 }
