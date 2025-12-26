@@ -61,6 +61,16 @@ func createTables() {
 		FOREIGN KEY (category_id) REFERENCES categories(id)
 	);`
 
+
+	newsTable := `
+	CREATE TABLE IF NOT EXISTS news (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		title TEXT NOT NULL,
+		description TEXT NOT NULL,
+		image TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);`
+
 	reviewTable := `
 	CREATE TABLE IF NOT EXISTS reviews (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -105,7 +115,7 @@ func createTables() {
 		FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 	);`
 
-	tables := []string{userTable, categoryTable, productTable, reviewTable, orderTable, bannerTable, cartItemsTable}
+	tables := []string{userTable, categoryTable, productTable, reviewTable, newsTable, orderTable, bannerTable, cartItemsTable}
 
 	for _, table := range tables {
 		_, err := DB.Exec(table)

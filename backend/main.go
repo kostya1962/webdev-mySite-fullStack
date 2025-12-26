@@ -54,6 +54,7 @@ func main() {
 	products := api.Group("/products")
 	products.Get("/", handlers.GetProducts)
 	products.Get("/:id", handlers.GetProduct)
+	products.Post(":id/reviews", handlers.CreateReview)
 
 	// Категории
 	categories := api.Group("/categories")
@@ -62,6 +63,10 @@ func main() {
 	// Баннеры
 	banners := api.Group("/banners")
 	banners.Get("/", handlers.GetBanners)
+
+	// Новости
+	news := api.Group("/news")
+	news.Get("/", handlers.GetNews)
 
 	// Заказы
 	orders := api.Group("/orders")
