@@ -29,13 +29,14 @@ const formattedPrice = computed(() => {
     });
 
     const averageRating = computed(() => {
-        return productData.value?.reviews.length
-            ? productData.value.reviews.reduce((sum, r) => sum + r.rating, 0) / productData.value.reviews.length
+        const reviews = productData.value?.reviews
+        return reviews && reviews.length
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             : 0
     })
 
   const countReviews = computed(() => {
-        return productData.value?.reviews.length ?? 0;
+        return productData.value?.reviews?.length ?? 0;
     });
 
     function setActiveFlag(val: number) {
@@ -68,7 +69,15 @@ const formattedPrice = computed(() => {
 <div>
     <div class="up">
         <div class="up__gallery">
-            <GallerayProd :images="productData?.product.images ?? []" />
+            <GallerayProd
+:images="(() => {
+                const imgs = productData?.product.images;
+                if (!imgs) return [];
+                if (typeof imgs === 'string') {
+                    try { return JSON.parse(imgs); } catch { return []; }
+                }
+                return Array.isArray(imgs) ? imgs : [];
+            })()" />
         </div>
         <div class="up__info">
             <div class="up__info__name">{{ productData?.product.name }}</div>

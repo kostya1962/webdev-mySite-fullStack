@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"myAPI/database"
-	"myAPI/models"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -44,32 +43,130 @@ func AdminBackup(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "path": dst})
 }
 
-// AdminCreateProduct - простой эндпоинт для создания товара админом
-func AdminCreateProduct(c *fiber.Ctx) error {
-	var p models.Product
-	if err := c.BodyParser(&p); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+// AdminListBackups - получить список доступных бэкапов
+func AdminListBackups(c *fiber.Ctx) error {
+	backupDir := "backups"
+	
+	// Если папка не существует, создадим её
+	if err := os.MkdirAll(backupDir, 0755); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to create backup dir"})
 	}
 
-	imagesJSON := "[]"
-	if p.Images != nil {
-		if v, err := p.Images.Value(); err == nil {
-			if s, ok := v.(string); ok {
-				imagesJSON = s
+	entries, err := os.ReadDir(backupDir)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to read backups dir"})
+	}
+
+	type BackupInfo struct {
+		Name    string `json:"name"`
+		Path    string `json:"path"`
+		ModTime string `json:"modTime"`
+		Size    int64  `json:"size"`
+	}
+
+	var backups []BackupInfo
+
+	for _, entry := range entries {
+		if !entry.IsDir() && filepath.Ext(entry.Name()) == ".db" {
+			info, err := entry.Info()
+			if err != nil {
+				continue
 			}
+			backups = append(backups, BackupInfo{
+				Name:    entry.Name(),
+				Path:    filepath.Join(backupDir, entry.Name()),
+				ModTime: info.ModTime().Format("2006-01-02 15:04:05"),
+				Size:    info.Size(),
+			})
 		}
 	}
 
-	res, err := database.DB.Exec(`INSERT INTO products (name, price, short_description, long_description, sku, discount, images, category_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		p.Name, p.Price, p.ShortDescription, p.LongDescription, p.SKU, p.Discount, imagesJSON, p.CategoryID, time.Now(), time.Now(),
-	)
+	return c.JSON(fiber.Map{"backups": backups})
+}
+
+// AdminRestoreBackup - восстановить БД из бэкапа
+func AdminRestoreBackup(c *fiber.Ctx) error {
+	var req struct {
+		BackupName string `json:"backupName"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
+	}
+
+	if req.BackupName == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "backupName is required"})
+	}
+
+	backupPath := filepath.Join("backups", req.BackupName)
+
+	// Проверим что файл существует и находится в папке backups
+	absBackupPath, err := filepath.Abs(backupPath)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to get absolute path"})
+	}
+
+	absBackupDir, err := filepath.Abs("backups")
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to get absolute path"})
+	}
+
+	// Защита от path traversal атак
+	if !filepath.HasPrefix(absBackupPath, absBackupDir) {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid backup path"})
+	}
+
+	_, err = os.Stat(backupPath)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "backup file not found"})
+	}
+
+	// Создаем бэкап текущей БД перед восстановлением (как страховка)
+	currentDBBackup := filepath.Join("backups", "backup-before-restore-"+time.Now().Format("20060102-150405")+".db")
+	if in, err := os.Open("app.db"); err == nil {
+		defer in.Close()
+		if out, err := os.Create(currentDBBackup); err == nil {
+			defer out.Close()
+			io.Copy(out, in)
+		}
+	}
+
+	// Читаем бэкап
+	in, err := os.Open(backupPath)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to open backup file"})
+	}
+	defer in.Close()
+
+	// Пишем в app.db
+	out, err := os.Create("app.db")
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to create app.db"})
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, in); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to restore backup"})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "message": "backup restored successfully"})
+}
+
+
+func AdminCreateProduct(c *fiber.Ctx) error {
+	// Parse incoming body as generic map to be tolerant to different client payload shapes
+	var body map[string]interface{}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+
+	id, err := createProduct(body)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to create product"})
 	}
-	id, _ := res.LastInsertId()
-	p.ID = int(id)
 
-	return c.Status(201).JSON(p)
+	body["id"] = id
+	return c.Status(201).JSON(body)
 }
 
 // AdminGetResource - получить все записи ресурса
@@ -215,6 +312,47 @@ func AdminDeleteResource(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true})
 }
 
+// AdminUploadFile загружает файл и сохраняет его в соответствующую папку images
+func AdminUploadFile(c *fiber.Ctx) error {
+	kind := c.Params("kind")
+
+	// map resource kind to folder name
+	folder := ""
+	switch kind {
+	case "products":
+		folder = "jewelry"
+	case "news":
+		folder = "news"
+	case "banners":
+		folder = "banner"
+	default:
+		return c.Status(400).JSON(fiber.Map{"error": "unknown upload kind"})
+	}
+
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "file not provided"})
+	}
+
+	// ensure images/<folder> exists
+	destDir := filepath.Join("images", folder)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to create dir"})
+	}
+
+	// generate filename
+	fname := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+	dst := filepath.Join(destDir, fname)
+
+	if err := c.SaveFile(fileHeader, dst); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to save file"})
+	}
+
+	// return public path
+	publicPath := "/images/" + folder + "/" + fname
+	return c.JSON(fiber.Map{"path": publicPath})
+}
+
 // Helper functions for Products
 func getProductsForAdmin() ([]map[string]interface{}, error) {
 	rows, err := database.DB.Query(`
@@ -270,10 +408,14 @@ func createProduct(data map[string]interface{}) (int64, error) {
 		images = "[]"
 	}
 
+	// allow admin-provided timestamps
+	createdAt := parseTimeFromMap(data, "created_at")
+	updatedAt := parseTimeFromMap(data, "updated_at")
+
 	result, err := database.DB.Exec(`
 		INSERT INTO products (name, price, short_description, long_description, sku, discount, images, category_id, created_at, updated_at) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, name, price, shortDesc, longDesc, sku, discount, images, categoryID, time.Now(), time.Now())
+	`, name, price, shortDesc, longDesc, sku, discount, images, categoryID, createdAt, updatedAt)
 
 	if err != nil {
 		return 0, err
@@ -296,18 +438,40 @@ func updateProduct(id int, data map[string]interface{}) error {
 		images = "[]"
 	}
 
+	updatedAt := parseTimeFromMap(data, "updated_at")
+
 	_, err := database.DB.Exec(`
 		UPDATE products 
 		SET name = ?, price = ?, short_description = ?, long_description = ?, sku = ?, discount = ?, images = ?, category_id = ?, updated_at = ? 
 		WHERE id = ?
-	`, name, price, shortDesc, longDesc, sku, discount, images, categoryID, time.Now(), id)
+	`, name, price, shortDesc, longDesc, sku, discount, images, categoryID, updatedAt, id)
 
 	return err
 }
 
 func deleteProduct(id int) error {
-	_, err := database.DB.Exec("DELETE FROM products WHERE id = ?", id)
-	return err
+	// Delete dependent records (reviews, banners) first to avoid foreign key constraint errors
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec("DELETE FROM reviews WHERE product_id = ?", id); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := tx.Exec("DELETE FROM banners WHERE product_id = ?", id); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := tx.Exec("DELETE FROM products WHERE id = ?", id); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // Helper functions for Categories
@@ -397,14 +561,16 @@ func getOrdersForAdmin() ([]map[string]interface{}, error) {
 func createOrder(data map[string]interface{}) (int64, error) {
 	userID := toInt(data["user_id"])
 	productIDs := toString(data["product_ids"])
-	status := toString(data["status"])
+	status := toString(data["status"]) 
 
 	if status == "" {
-		status = "новый"
+		status = "оплачен"
 	}
 
+	createdAt := parseTimeFromMap(data, "created_at")
+
 	result, err := database.DB.Exec(`INSERT INTO orders (user_id, product_ids, status, created_at) VALUES (?, ?, ?, ?)`,
-		userID, productIDs, status, time.Now())
+		userID, productIDs, status, createdAt)
 
 	if err != nil {
 		return 0, err
@@ -465,8 +631,10 @@ func createNews(data map[string]interface{}) (int64, error) {
 	description := toString(data["description"])
 	image := toString(data["image"])
 
+	createdAt := parseTimeFromMap(data, "created_at")
+
 	result, err := database.DB.Exec(`INSERT INTO news (title, description, image, created_at) VALUES (?, ?, ?, ?)`,
-		title, description, image, time.Now())
+		title, description, image, createdAt)
 
 	if err != nil {
 		return 0, err
@@ -527,8 +695,10 @@ func createBanner(data map[string]interface{}) (int64, error) {
 	image := toString(data["image"])
 	position := toInt(data["position"])
 
+	createdAt := parseTimeFromMap(data, "created_at")
+
 	result, err := database.DB.Exec(`INSERT INTO banners (product_id, image, position, created_at) VALUES (?, ?, ?, ?)`,
-		productID, image, position, time.Now())
+		productID, image, position, createdAt)
 
 	if err != nil {
 		return 0, err
@@ -604,10 +774,13 @@ func createUser(data map[string]interface{}) (int64, error) {
 	// Используем пустой пароль или временный
 	password := "changeme"
 
+	createdAt := parseTimeFromMap(data, "created_at")
+	updatedAt := parseTimeFromMap(data, "updated_at")
+
 	result, err := database.DB.Exec(`
 		INSERT INTO users (email, password, role, name, phone, delivery_address, created_at, updated_at) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-	`, email, password, role, name, phone, deliveryAddress, time.Now(), time.Now())
+	`, email, password, role, name, phone, deliveryAddress, createdAt, updatedAt)
 
 	if err != nil {
 		return 0, err
@@ -623,11 +796,13 @@ func updateUser(id int, data map[string]interface{}) error {
 	phone := toString(data["phone"])
 	deliveryAddress := toString(data["delivery_address"])
 
+	updatedAt := parseTimeFromMap(data, "updated_at")
+
 	_, err := database.DB.Exec(`
 		UPDATE users 
 		SET email = ?, role = ?, name = ?, phone = ?, delivery_address = ?, updated_at = ? 
 		WHERE id = ?
-	`, email, role, name, phone, deliveryAddress, time.Now(), id)
+	`, email, role, name, phone, deliveryAddress, updatedAt, id)
 
 	return err
 }
@@ -720,4 +895,32 @@ func toIntArray(val interface{}) []int {
 	}
 
 	return arr
+}
+
+// parseTimeFromMap parses a time string from the provided map at key and returns time.Time.
+// It understands RFC3339 and the 'datetime-local' format '2006-01-02T15:04'.
+func parseTimeFromMap(data map[string]interface{}, key string) time.Time {
+	if data == nil {
+		return time.Now()
+	}
+	s := toString(data[key])
+	if s == "" {
+		return time.Now()
+	}
+
+	// try RFC3339
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t
+	}
+
+	// try datetime-local format without seconds
+	layouts := []string{"2006-01-02T15:04", "2006-01-02 15:04:05", "2006-01-02T15:04:05"}
+	for _, l := range layouts {
+		if t, err := time.Parse(l, s); err == nil {
+			return t
+		}
+	}
+
+	// fallback
+	return time.Now()
 }

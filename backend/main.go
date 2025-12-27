@@ -71,7 +71,10 @@ func main() {
 	// Админ-панель (требует авторизацию и роль admin)
 	admin := api.Group("/admin", utils.AuthMiddleware, utils.AdminMiddleware)
 	admin.Post("/backup", handlers.AdminBackup)
+	admin.Get("/backups", handlers.AdminListBackups)
+	admin.Post("/restore", handlers.AdminRestoreBackup)
 	admin.Post("/products", handlers.AdminCreateProduct)
+	admin.Post("/upload/:kind", handlers.AdminUploadFile)
 	
 	// Generic admin CRUD endpoints for all resources
 	admin.Get("/:resource", handlers.AdminGetResource)           // GET /api/admin/{resource}

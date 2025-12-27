@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminResource from '~/components/admin/ResourceTable.vue'
+import ProductsTable from '~/components/admin/ProductsTable.vue'
+import CategoriesTable from '~/components/admin/CategoriesTable.vue'
+import OrdersTable from '~/components/admin/OrdersTable.vue'
+import NewsTable from '~/components/admin/NewsTable.vue'
+import BannersTable from '~/components/admin/BannersTable.vue'
+import UsersTable from '~/components/admin/UsersTable.vue'
+
+    useSeoMeta({
+        title: 'Админ-панель',
+        description: 'Админ-панель интернет магазина Shopper',
+        ogDescription: 'Админ-панель интернет магазина Shopper',
+    });
 
 const tabs = ['products','categories','orders','news','banners','users']
 const tabNames: Record<string,string> = {
@@ -13,12 +24,17 @@ const tabNames: Record<string,string> = {
 }
 const active = ref('products')
 
+// Interface for table components
+interface TableComponent {
+  fetchList(): void
+}
+
 // Ref для дочернего компонента, чтобы вызывать его методы
-const resourceTableRef = ref<InstanceType<typeof AdminResource>>()
+const resourceTableRef = ref<TableComponent | null>(null)
 
 // Функция reload вызывает fetchList в дочернем компоненте
 // для обновления списка после создания/редактирования/удаления записи
-function reload() {
+function _reload() {
   resourceTableRef.value?.fetchList()
 }
 </script>
@@ -39,12 +55,12 @@ function reload() {
     </div>
 
     <div class="panel">
-      <AdminResource
-        ref="resourceTableRef"
-        :resource="active"
-        :endpoint="`/admin/${active}`"
-        @saved="reload"
-      />
+      <ProductsTable v-if="active === 'products'" ref="resourceTableRef" />
+      <CategoriesTable v-if="active === 'categories'" ref="resourceTableRef" />
+      <OrdersTable v-if="active === 'orders'" ref="resourceTableRef" />
+      <NewsTable v-if="active === 'news'" ref="resourceTableRef" />
+      <BannersTable v-if="active === 'banners'" ref="resourceTableRef" />
+      <UsersTable v-if="active === 'users'" ref="resourceTableRef" />
     </div>
   </div>
 </template>

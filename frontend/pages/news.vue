@@ -2,6 +2,12 @@
     import { computed } from 'vue';
     import type { GetNewsResponse, NewsItem } from '~/interfaces/news.interface';
 
+    useSeoMeta({
+        title: 'Новости',
+        description: 'Последние новости интернет магазина Shopper',
+        ogDescription: 'Последние новости интернет магазина Shopper',
+    });
+
     const API_URL = useAPI();
 
     const { data: newsData, pending, error } = await useFetch<GetNewsResponse>(`${API_URL}/news`);
