@@ -10,12 +10,17 @@ export const useCartStore = defineStore(
     const cartItems = ref<CartItem[]>([]);
     const API_URL = useAPI();
 
+    // Ensure cartItems is always an array
+    const ensureArray = () => {
+      if (!Array.isArray(cartItems.value)) {
+        cartItems.value = [];
+      }
+    };
+
     // Добавить товар в корзину (или увеличить количество)
     function addToCart(product: Product, quantity: number) {
       // Инициализируем корзину если она пуста или null
-      if (!cartItems.value) {
-        cartItems.value = [];
-      }
+      ensureArray();
 
       const existingItem = cartItems.value.find(
         (item) => item.product.id === product.id
@@ -37,10 +42,7 @@ export const useCartStore = defineStore(
 
     // Обновить количество товара
     function updateQuantity(productId: number, quantity: number) {
-      if (!cartItems.value) {
-        cartItems.value = [];
-        return;
-      }
+      ensureArray();
 
       const item = cartItems.value.find(
         (item) => item.product.id === productId
@@ -55,6 +57,7 @@ export const useCartStore = defineStore(
 
     // Удалить товар из корзины
     function removeFromCart(productId: number) {
+      ensureArray();
       cartItems.value = cartItems.value.filter(
         (item) => item.product.id !== productId
       );
@@ -76,7 +79,6 @@ export const useCartStore = defineStore(
       );
     }
 
-    // Получить общую стоимость
     function getTotalPrice(): number {
       return cartItems.value.reduce(
         (total, item) => total + item.product.price * item.quantity,
@@ -84,12 +86,10 @@ export const useCartStore = defineStore(
       );
     }
 
-    // Получить количество товаров
     function getItemsCount(): number {
       return cartItems.value.reduce((count, item) => count + item.quantity, 0);
     }
 
-    // Сохранить товар на сервере
     async function save(productId: number, quantity: number) {
       try {
         await $fetch<{ success: boolean }>(`${API_URL}/cart`, {
@@ -105,7 +105,6 @@ export const useCartStore = defineStore(
       }
     }
 
-    // Удалить товар с сервера
     async function removeFromServer(productId: number) {
       try {
         await $fetch<{ success: boolean }>(`${API_URL}/cart`, {
@@ -120,7 +119,6 @@ export const useCartStore = defineStore(
       }
     }
 
-    // Загрузить корзину с сервера
     async function restore(email: string) {
       try {
         const data = await $fetch<CartItem[]>(`${API_URL}/cart`, {
@@ -128,7 +126,7 @@ export const useCartStore = defineStore(
             email: email,
           },
         });
-        cartItems.value = data;
+        cartItems.value = Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Ошибка при загрузке корзины:", error);
       }

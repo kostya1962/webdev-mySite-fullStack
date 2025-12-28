@@ -53,6 +53,14 @@
     const categoriesList = computed(() => categoriesData.value?.categories ?? []);
     const resource = computed(() => props.resource);
 
+    const hiddenColumns: Record<string, string[]> = {
+        products: ['created_at', 'images', 'long_description', 'short_description', 'updated_at'],
+        news: ['image'],
+        users: ['created_at', 'updated_at', 'password', 'secret'],
+    }
+
+    // Колонки, которые отображаются в таблице (фильтруются на основе `cols` и `hiddenColumns`)
+    const displayCols = ref<string[]>([])
 
 
     async function fetchList() {
@@ -103,9 +111,14 @@
                 }
 
                 cols.value = orderCols(raw)
-                headers.value = [...cols.value]
+
+                // Отфильтровать колонки для визуального отображения, но оставить `cols` целыми
+                const hidden = hiddenColumns[resource.value] || []
+                displayCols.value = cols.value.filter(c => !hidden.includes(c))
+                headers.value = [...displayCols.value]
             } else {
                 cols.value = ['id']
+                displayCols.value = ['id']
                 headers.value = ['id']
             }
         } catch (e) {
@@ -419,7 +432,7 @@
         </thead>
     <tbody>
         <tr v-for="item in items" :key="item.id">
-        <td v-for="col in cols" :key="col">
+        <td v-for="col in displayCols" :key="col">
             {{ formatCell(item, col) }}
         </td>
         <td>

@@ -18,7 +18,7 @@ func SeedData() {
 		{"Серьги", "earrings"},
 		{"Кольца", "rings"},
 		{"Ожерелья", "necklaces"},
-		{"Заколки", "bracelets"},
+		{"Браслеты", "bracelets"},
 	}
 
 	for _, cat := range categories {
@@ -46,18 +46,18 @@ func SeedData() {
 			longDescription:  "Отлично подойдут к любому гардеробу. Чистое золото высокой пробы, которое не оставит вас равнодушными к качеству изделия.",
 			sku:              "12",
 			discount:         0,
-			images:           []string{"/images/jewelry/lira1.jpg", "/images/jewelry/lira2.jpg", "/images/jewelry/lira3.jpg", "/images/jewelry/lira4.jpg"},
+			images:           []string{"/images/jewelry/liras1.jpg", "/images/jewelry/liras2.jpg", "/images/jewelry/liras3.jpg", "/images/jewelry/liras4.jpg"},
 			categoryID:       1,
 		},
 		{
-			name:             "Stella Diamond Ring",
+			name:             "Stella Diamond Clock",
 			price:            92400.00,
-			shortDescription: "Обручальное кольцо с бриллиантом",
-			longDescription:  "Изысканное кольцо из белого золота 585 пробы с центральным бриллиантом весом 0.5 карата. Идеально для предложения руки и сердца.",
-			sku:              "RING-STELLA-001",
+			shortDescription: "Элегантные женские наручные часы из золота — изысканное сочетание ювелирного мастерства и точного механизма. Идеальный аксессуар для подчёркивания статуса и утончённого вкуса.",
+			longDescription:  "Женские наручные часы из золота — это не просто инструмент для измерения времени, а полноценное ювелирное украшение, способное подчеркнуть индивидуальность и изящество своей обладательницы. Корпус и браслет, выполненные из благородного золота, придают изделию роскошный внешний вид и обеспечивают долговечность. Лаконичный, но выразительный дизайн гармонично сочетается как с повседневным, так и с вечерним образом. Точный часовой механизм гарантирует надёжную работу, а продуманная форма корпуса обеспечивает комфорт при ежедневном ношении. Эти часы станут идеальным выбором для женщины, ценящей стиль, качество и безупречную эстетику.",
+			sku:              "CLOCK-STELLA-001",
 			discount:         10,
-			images:           []string{"/images/jewelry/stella1.jpg", "/images/jewelry/stella2.jpg"},
-			categoryID:       2,
+			images:           []string{"/images/jewelry/clock1.jpg", "/images/jewelry/clock2.jpg", "/images/jewelry/clock3.jpg", "/images/jewelry/clock4.jpg"},
+			categoryID:       4,
 		},
 		{
 			name:             "Moonlight Necklace",
@@ -66,7 +66,7 @@ func SeedData() {
 			longDescription:  "Утонченное ожерелье из серебра 925 пробы с натуральным лунным камнем. Подчеркнет вашу женственность и загадочность.",
 			sku:              "NECK-MOON-001",
 			discount:         15,
-			images:           []string{"/images/jewelry/moonlight1.jpg", "/images/jewelry/moonlight2.jpg", "/images/jewelry/moonlight3.jpg"},
+			images:           []string{"/images/jewelry/moonlighto1.jpg", "/images/jewelry/moonlighto2.jpg", "/images/jewelry/moonlighto3.jpg"},
 			categoryID:       3,
 		},
 		{
@@ -76,7 +76,7 @@ func SeedData() {
 			longDescription:  "Элегантный браслет из розового золота 750 пробы с тонким плетением. Идеальное дополнение к вечернему образу.",
 			sku:              "BRACE-ROSE-001",
 			discount:         0,
-			images:           []string{"/images/jewelry/rosegold1.jpg"},
+			images:           []string{"/images/jewelry/pink1.jpg", "/images/jewelry/pink2.jpg", "/images/jewelry/pink3.jpg"},
 			categoryID:       4,
 		},
 		{
@@ -86,7 +86,7 @@ func SeedData() {
 			longDescription:  "Потрясающие серьги с кристаллами Swarovski в оправе из родированного серебра. Добавят блеска любому вечернему наряду.",
 			sku:              "EARR-CRYSTAL-001",
 			discount:         20,
-			images:           []string{"/images/jewelry/crystal1.jpg", "/images/jewelry/crystal2.jpg"},
+			images:           []string{"/images/jewelry/crystals1.jpg"},
 			categoryID:       1,
 		},
 		{
@@ -96,7 +96,7 @@ func SeedData() {
 			longDescription:  "Классическое ожерелье из натурального пресноводного жемчуга с позолоченной застежкой. Воплощение элегантности и изысканности.",
 			sku:              "NECK-PEARL-001",
 			discount:         0,
-			images:           []string{"/images/jewelry/pearl1.jpg", "/images/jewelry/pearl2.jpg", "/images/jewelry/pearl3.jpg"},
+			images:           []string{"/images/jewelry/vint1.jpg", "/images/jewelry/vint2.jpg", "/images/jewelry/vint3.jpg"},
 			categoryID:       3,
 		},
 		{
@@ -106,7 +106,7 @@ func SeedData() {
 			longDescription:  "Стильный набор из трех колец разного размера с символом бесконечности. Выполнен из серебра 925 пробы с родиевым покрытием.",
 			sku:              "RING-INF-SET",
 			discount:         25,
-			images:           []string{"/images/jewelry/infinity1.jpg", "/images/jewelry/infinity2.jpg"},
+			images:           []string{"/images/jewelry/rings1.jpg", "/images/jewelry/rings2.jpg"},
 			categoryID:       2,
 		},
 		{
@@ -116,7 +116,7 @@ func SeedData() {
 			longDescription:  "Игривый браслет из серебра с коллекцией миниатюрных подвесок: сердечко, звездочка, луна и солнце. Отличный подарок для молодых девушек.",
 			sku:              "BRACE-CHARM-001",
 			discount:         0,
-			images:           []string{"/images/jewelry/charm1.jpg", "/images/jewelry/charm2.jpg", "/images/jewelry/charm3.jpg"},
+			images:           []string{"/images/jewelry/sharm1.jpg"},
 			categoryID:       4,
 		},
 	}
@@ -143,8 +143,9 @@ func SeedData() {
 	}{
 		{1, "Василий", "В целом отлично, так как стоят не дорого и не пришлось жене дарить новый телефон, который она просила.", 3},
 		{1, "Николай", "Я бы поставил и больше, но при доставке данные серёжки помялись и стали треугольными, а не круглыми. В остальном сервис отличный и я буду продолжать покупать в этом магазине.", 3},
-		{2, "Светлана", "Превосходное кольцо! Муж сделал предложение именно с ним. Качество бриллианта на высоте!", 5},
-		{2, "Андрей", "Дорого, но того стоит. Невеста в восторге!", 4},
+		{2, "Светлана", "Часы выглядят просто великолепно — очень изящные и статусные. Золото красиво переливается, на руке сидят комфортно, не тяжёлые. Отлично подойдут и под деловой стиль, и под вечерний образ. Покупкой полностью довольна, ощущаются как настоящее ювелирное украшение.", 5},
+		{2, "Андрей", "В целом часы хорошие, дизайн аккуратный и универсальный. Качество исполнения на достойном уровне, механизм работает точно. Однако ожидала, что они будут немного массивнее. В остальном — нормальный вариант для повседневной носки.", 4},
+		{2, "Настя", "Часы красивые, но цена, на мой взгляд, завышена. Браслет показался слишком тонким, а застёжка не очень удобной. Для такой стоимости хотелось бы более внушительного исполнения. Ожидания оправдались не полностью.", 2},
 		{3, "Елена", "Очень красивое ожерелье, лунный камень переливается на свету", 5},
 		{4, "Мария", "Изысканный браслет, отлично подходит к моему стилю", 5},
 		{5, "Анна", "Серьги просто великолепны! Кристаллы действительно сверкают", 5},
@@ -171,8 +172,8 @@ func SeedData() {
 		position int
 	}{
 		{1, "/images/banner/bun1.png", 1},
-		{3, "/images/banner/bun2.png", 2},
-		{4, "/images/banner/bun3.png", 3},
+		{2, "/images/banner/bun2.png", 2},
+		{3, "/images/banner/bun3.png", 3},
 	}
 
 	for _, b := range banners {

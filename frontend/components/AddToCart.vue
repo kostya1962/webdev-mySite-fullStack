@@ -28,10 +28,14 @@ quantity.value = 1;
 
 
 function handleConfirmAdd() {
-cartStore.addToCart(product, quantity.value);
+    const productWithDiscount = {
+        ...product,
+        price: product?.price * (1 - product?.discount * 0.01),
+    };
+    cartStore.addToCart(productWithDiscount, quantity.value);
 
-isAdded.value = false;
-quantity.value = 1;
+    isAdded.value = false;
+    quantity.value = 1;
 }
 
 

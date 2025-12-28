@@ -14,12 +14,40 @@ const products = ref<Product[]>([]);
 
 
 watchEffect(async () => {
-    const data = await Promise.all(
+    if (!Array.isArray(favoriteState.favoriteIDs)) {
+        favoriteState.favoriteIDs = [];
+    }
+    
+    const results = await Promise.allSettled(
         favoriteState.favoriteIDs.map(id => {
             return $fetch<{product: Product}>(API_URL + '/products/' + id);
         })
     );
-    products.value = data.map(item => item.product);
+    
+    const notFoundIds: number[] = [];
+    const loadedProducts = results
+        .map((result, index) => {
+            if (result.status === 'fulfilled') {
+                return result.value.product;
+            } else {
+                // Товар не найден (404), запомнить ID для удаления
+                const id = favoriteState.favoriteIDs[index];
+                if (id !== undefined) {
+                    notFoundIds.push(id);
+                }
+                return null;
+            }
+        })
+        .filter((product): product is Product => product !== null);
+    
+    products.value = loadedProducts;
+    
+    // Удалить несуществующие товары из состояния
+    if (notFoundIds.length > 0) {
+        notFoundIds.forEach(id => {
+            favoriteState.removeFavoriteId(id);
+        });
+    }
 });
 </script>
 

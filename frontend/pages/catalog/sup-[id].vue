@@ -1,30 +1,32 @@
 <!-- eslint-disable vue/no-multiple-template-root -->
 <script setup lang="ts">
-import GallerayProd from '~/components/GallerayProd.vue';
-import AddToCart from '~/components/AddToCart.vue';
-import ReviewForm from '~/components/ReviewForm.vue';
-import type { ProductIDRsponse } from '~/interfaces/productID.interface';
-import { useFavoriteStore } from '~/state/favorite.state';
-import { useAuthStore } from '~/state/auth.state';
+    import GallerayProd from '~/components/GallerayProd.vue';
+    import AddToCart from '~/components/AddToCart.vue';
+    import ReviewForm from '~/components/ReviewForm.vue';
+    import type { ProductIDRsponse } from '~/interfaces/productID.interface';
+    import { useFavoriteStore } from '~/state/favorite.state';
+    import { useAuthStore } from '~/state/auth.state';
 
-const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
-const API_URL = useAPI();
-const authStore = useAuthStore()
-const favoriteState = useFavoriteStore();
-const activeFlag = ref<number>(0);
+    const route = useRoute(); //извлекаю текущий маршрут (путь и параметры)
+    const API_URL = useAPI();
+    const authStore = useAuthStore()
+    const favoriteState = useFavoriteStore();
+    const activeFlag = ref<number>(0);
 
 
-const {data: productData } = await useFetch<ProductIDRsponse>(
-    API_URL + '/products/' + route.params.id
-);
+    const {data: productData } = await useFetch<ProductIDRsponse>(
+        API_URL + '/products/' + route.params.id
+    );
 
-useSeoMeta({
-    title: `Купить ${productData.value?.product.name}`,
-    description: productData.value?.product.short_description,
-});
+    useSeoMeta({
+        title: `Купить ${productData.value?.product.name}`,
+        description: productData.value?.product.short_description,
+    });
 
-const formattedPrice = computed(() => {
-        const value = Number( productData.value?.product.price || 0);
+    const formattedPrice = computed(() => {
+        const price = productData.value?.product.price || 0;
+        const discount = productData.value?.product.discount || 0;
+        const value = Number(price * (1 - discount * 0.01));
         return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
     });
 
@@ -35,7 +37,7 @@ const formattedPrice = computed(() => {
             : 0
     })
 
-  const countReviews = computed(() => {
+    const countReviews = computed(() => {
         return productData.value?.reviews?.length ?? 0;
     });
 

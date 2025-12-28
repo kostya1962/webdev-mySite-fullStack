@@ -32,9 +32,18 @@ async function submitOrder() {
     if (!cartStore.cartItems.length) return;
 
     const product_ids = cartStore.cartItems.map((i) => i.product.id);
+    
+    console.log('[submitOrder] API_URL:', API_URL);
+    console.log('[submitOrder] Token:', authStore.token.substring(0, 20) + '...');
+    console.log('[submitOrder] Request payload:', {
+        product_ids,
+        name: fullName.value,
+        phone: phone.value,
+        delivery_address: deliveryAddress.value,
+    });
 
     try {
-        await $fetch(`${API_URL}/orders/auth`, {
+        const response = await $fetch(`${API_URL}/orders/auth`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
@@ -46,19 +55,24 @@ async function submitOrder() {
                 delivery_address: deliveryAddress.value,
             },
         });
+        
+        console.log('[submitOrder] Success response:', response);
 
         // Если успешно — очистим корзину и перейдём в профиль
         cartStore.clearCart();
         await router.push('/account');
-    } catch (e) {
+    } catch (e: any) {
         console.error('Order submit error', e);
+        console.error('[submitOrder] Error status:', e?.status);
+        console.error('[submitOrder] Error data:', e?.data);
+        console.error('[submitOrder] Error message:', e?.message);
     }
 }
 
 // computed-safe bindings to avoid null during hydration
 const items = computed(() => cartStore.cartItems ?? []);
 const itemsCount = computed(() => items.value.reduce((c, it) => c + (it.quantity || 0), 0));
-const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product?.price || 0) * (it.quantity || 0)), 0));
+const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product?.price * (1 - (it.product?.discount || 0) * 0.01) || 0) * (it.quantity || 0)), 0));
 </script>
 
 <template>

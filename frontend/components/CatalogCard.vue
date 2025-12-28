@@ -6,7 +6,7 @@ import type { Product } from '~/interfaces/product.interface';
     const image = computed(() => `url(${config.public.imageurl}${product.images?.[0] ?? ''})`);
 
     const formattedPrice = computed(() => {
-        const value = Number(product.price || 0);
+        const value = Number(product.price * (1 - product.discount * 0.01) || 0);
         return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
     });
 

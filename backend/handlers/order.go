@@ -62,7 +62,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	productIDsJSON, _ := json.Marshal(req.ProductIDs)
 	orderResult, err := database.DB.Exec(
 		"INSERT INTO orders (user_id, product_ids, status, created_at) VALUES (?, ?, ?, ?)",
-		userID, string(productIDsJSON), "новый", time.Now(),
+		userID, string(productIDsJSON), "оплачен", time.Now(),
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -96,7 +96,19 @@ func CreateOrder(c *fiber.Ctx) error {
 
 // CreateOrderAuth - создание заказа для авторизованного пользователя
 func CreateOrderAuth(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(int)
+	// Безопасно извлекаем userID из контекста — может быть int, int64 или float64
+	userIDVal := c.Locals("userID")
+	var userID int
+	switch v := userIDVal.(type) {
+	case int:
+		userID = v
+	case int64:
+		userID = int(v)
+	case float64:
+		userID = int(v)
+	default:
+		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
+	}
 
 	var req models.CreateOrderAuthRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -152,7 +164,19 @@ func CreateOrderAuth(c *fiber.Ctx) error {
 
 // GetUserOrders - получение списка заказов пользователя
 func GetUserOrders(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(int)
+	// Безопасно извлекаем userID из контекста — может быть int, int64 или float64
+	userIDVal := c.Locals("userID")
+	var userID int
+	switch v := userIDVal.(type) {
+	case int:
+		userID = v
+	case int64:
+		userID = int(v)
+	case float64:
+		userID = int(v)
+	default:
+		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
+	}
 
 	query := `
 		SELECT id, user_id, product_ids, status, created_at

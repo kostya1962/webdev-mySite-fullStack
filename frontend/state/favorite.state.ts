@@ -6,7 +6,15 @@ export const useFavoriteStore = defineStore(
     const authStore = useAuthStore();
     const favoriteIDs = ref<number[]>([]);
 
+    // Ensure favoriteIDs is always an array
+    const ensureArray = () => {
+      if (!Array.isArray(favoriteIDs.value)) {
+        favoriteIDs.value = [];
+      }
+    };
+
     function toggleFavorite(id: number) {
+      ensureArray();
       if (!favoriteIDs.value.includes(id)) {
         favoriteIDs.value.push(id);
         if (authStore.email) {
@@ -21,10 +29,20 @@ export const useFavoriteStore = defineStore(
     }
 
     function isFavorite(id: number) {
+      ensureArray();
       return favoriteIDs.value.find((f) => f == id);
     }
 
+    function removeFavoriteId(id: number) {
+      ensureArray();
+      favoriteIDs.value = favoriteIDs.value.filter((favID) => favID !== id);
+      if (authStore.email) {
+        save();
+      }
+    }
+
     async function save() {
+      ensureArray();
       await $fetch<{ success: boolean }>("/api/favorites", {
         method: "POST",
         body: {
@@ -40,13 +58,14 @@ export const useFavoriteStore = defineStore(
           email: email,
         },
       });
-      favoriteIDs.value = data;
+      favoriteIDs.value = Array.isArray(data) ? data : [];
     }
 
     return {
       favoriteIDs,
       toggleFavorite,
       isFavorite,
+      removeFavoriteId,
       restore,
     };
   },

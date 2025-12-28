@@ -5,6 +5,7 @@ import (
 	"myAPI/database"
 	"myAPI/handlers"
 	"myAPI/utils"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -12,12 +13,21 @@ import (
 )
 
 func main() {
+	// Проверяем, существовала ли БД до инициализации
+	needSeed := false
+	if _, err := os.Stat("app.db"); os.IsNotExist(err) {
+		needSeed = true
+	} else if err != nil {
+		log.Printf("Warning checking app.db: %v", err)
+	}
+
 	// Инициализация базы данных
 	database.InitDatabase()
 
-	// Заполнение тестовыми данными (только при первом запуске)
-	database.SeedData()
-
+	// Заполнение тестовыми данными (только при первом запуске, если БД не существовала до инициализации)
+	if needSeed {
+		database.SeedData()
+	}
 	// Создание Fiber приложения
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -723,7 +724,13 @@ func deleteBanner(id int) error {
 	return err
 }
 
-// Helper functions for Users
+// Helper function to convert sql.NullString to string
+func nullStringToString(ns sql.NullString) string {
+	if ns.Valid {
+		return ns.String
+	}
+	return ""
+}
 func getUsersForAdmin() ([]map[string]interface{}, error) {
 	rows, err := database.DB.Query(`
 		SELECT id, email, role, name, phone, delivery_address, created_at, updated_at 
@@ -737,7 +744,8 @@ func getUsersForAdmin() ([]map[string]interface{}, error) {
 	var items []map[string]interface{}
 	for rows.Next() {
 		var id int
-		var email, role, name, phone, deliveryAddress string
+		var email, role string
+		var name, phone, deliveryAddress sql.NullString
 		var createdAt, updatedAt time.Time
 
 		if err := rows.Scan(&id, &email, &role, &name, &phone, &deliveryAddress, &createdAt, &updatedAt); err != nil {
@@ -748,9 +756,9 @@ func getUsersForAdmin() ([]map[string]interface{}, error) {
 			"id":                 id,
 			"email":              email,
 			"role":               role,
-			"name":               name,
-			"phone":              phone,
-			"delivery_address":   deliveryAddress,
+			"name":               nullStringToString(name),
+			"phone":              nullStringToString(phone),
+			"delivery_address":   nullStringToString(deliveryAddress),
 			"created_at":         createdAt.Format(time.RFC3339),
 			"updated_at":         updatedAt.Format(time.RFC3339),
 		}
