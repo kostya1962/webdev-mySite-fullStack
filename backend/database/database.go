@@ -89,6 +89,7 @@ func createTables() {
 		user_id INTEGER NOT NULL,
 		product_ids TEXT NOT NULL,
 		status TEXT DEFAULT 'новый',
+		price REAL DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);`
@@ -109,6 +110,7 @@ func createTables() {
 		user_id INTEGER NOT NULL,
 		product_id INTEGER NOT NULL,
 		quantity INTEGER NOT NULL DEFAULT 1,
+		price REAL DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		UNIQUE(user_id, product_id),
@@ -133,7 +135,24 @@ func createTables() {
 		"ALTER TABLE users ADD COLUMN role TEXT",
 	}
 
+	// Попытаться добавить новые колонки в таблицы orders и cart_items (игнорируем ошибки)
+	alterOrderTable := []string{
+		"ALTER TABLE orders ADD COLUMN price REAL DEFAULT 0",
+	}
+
+	alterCartItems := []string{
+		"ALTER TABLE cart_items ADD COLUMN price REAL DEFAULT 0",
+	}
+
 	for _, alter := range alterUserTable {
 		DB.Exec(alter) // Игнорируем ошибки, поля могут уже существовать
+	}
+
+	for _, alter := range alterOrderTable {
+		DB.Exec(alter)
+	}
+
+	for _, alter := range alterCartItems {
+		DB.Exec(alter)
 	}
 }

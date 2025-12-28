@@ -24,9 +24,7 @@
     });
 
     const formattedPrice = computed(() => {
-        const price = productData.value?.product.price || 0;
-        const discount = productData.value?.product.discount || 0;
-        const value = Number(price * (1 - discount * 0.01));
+        const value = Number(productData.value?.product.price || 0);
         return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
     });
 
@@ -65,6 +63,14 @@
             console.error('Failed to send review', e)
         }
     }
+
+
+    const getDiscountedProductPrice = (product: { price: number; discount: number; }) => {
+        const price = product.price ?? 0;
+        const discount = product.discount ?? 0;
+        const value = Number(price * (1 - discount / 100) || 0);
+        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
+    };
 </script>
 
 <template>
@@ -83,7 +89,19 @@
         </div>
         <div class="up__info">
             <div class="up__info__name">{{ productData?.product.name }}</div>
-            <div class="up__info__price">{{ formattedPrice}}</div>
+
+            <span class="up__info__price">
+                <template v-if="productData?.product.discount">
+                    <span class="old">{{ formattedPrice}}</span>
+                    <span class="new">
+                        {{ getDiscountedProductPrice(productData?.product) }} 
+                    </span>
+                </template>
+                <template v-else>
+                    {{ formattedPrice}} 
+                </template>
+            </span>
+
             <div class="up__info__description">{{ productData?.product.short_description }}</div>
             <div class="up__info__rating">
                 <RatingStars  :rating="averageRating" />
@@ -177,12 +195,24 @@
 }
 
 .up__info__price{
+    display: flex;
+    gap: 20px;
     font-size: 20px;
     font-weight: 700;
     line-height: 26px;
     text-transform: capitalize;
     color: var(--color-accent);
     margin-bottom: 10%;
+}
+
+.old {
+    text-decoration: line-through;
+    color: #9e9e9e;
+}
+
+.new {
+    color: var(--color-accent);
+    font-weight: 600;
 }
 
 .up__info__description{

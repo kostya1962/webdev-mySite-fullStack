@@ -530,7 +530,7 @@ func deleteCategory(id int) error {
 
 // Helper functions for Orders
 func getOrdersForAdmin() ([]map[string]interface{}, error) {
-	rows, err := database.DB.Query(`SELECT id, user_id, product_ids, status, created_at FROM orders`)
+	rows, err := database.DB.Query(`SELECT id, user_id, product_ids, status, price, created_at FROM orders`)
 	if err != nil {
 		return nil, err
 	}
@@ -540,9 +540,10 @@ func getOrdersForAdmin() ([]map[string]interface{}, error) {
 	for rows.Next() {
 		var id, userID int
 		var productIDsStr, status string
+		var price float64
 		var createdAt time.Time
 
-		if err := rows.Scan(&id, &userID, &productIDsStr, &status, &createdAt); err != nil {
+		if err := rows.Scan(&id, &userID, &productIDsStr, &status, &price, &createdAt); err != nil {
 			continue
 		}
 
@@ -551,6 +552,7 @@ func getOrdersForAdmin() ([]map[string]interface{}, error) {
 			"user_id":      userID,
 			"product_ids":  productIDsStr,
 			"status":       status,
+			"price":        price,
 			"created_at":   createdAt.Format(time.RFC3339),
 		}
 		items = append(items, item)

@@ -60,9 +60,26 @@ func CreateOrder(c *fiber.Ctx) error {
 
 	// Создаем заказ
 	productIDsJSON, _ := json.Marshal(req.ProductIDs)
+	// Рассчитаем итоговую цену с учётом скидок и количеств
+	counts := make(map[int]int)
+	for _, id := range req.ProductIDs {
+		counts[id]++
+	}
+	// Получим уникальные id для выборки
+	uniqueIDs := make([]int, 0, len(counts))
+	for id := range counts {
+		uniqueIDs = append(uniqueIDs, id)
+	}
+	productIDsArr := models.IntArray(uniqueIDs)
+	products, _ := getProductsByIDs(productIDsArr)
+	var orderPrice float64
+	for _, p := range products {
+		cnt := counts[p.ID]
+		orderPrice += p.Price * (1 - float64(p.Discount)/100.0) * float64(cnt)
+	}
 	orderResult, err := database.DB.Exec(
-		"INSERT INTO orders (user_id, product_ids, status, created_at) VALUES (?, ?, ?, ?)",
-		userID, string(productIDsJSON), "оплачен", time.Now(),
+		"INSERT INTO orders (user_id, product_ids, status, created_at, price) VALUES (?, ?, ?, ?, ?)",
+		userID, string(productIDsJSON), "оплачен", time.Now(), orderPrice,
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -137,9 +154,26 @@ func CreateOrderAuth(c *fiber.Ctx) error {
 
 	// Создаем заказ
 	productIDsJSON, _ := json.Marshal(req.ProductIDs)
+	// Рассчитаем итоговую цену с учётом скидок и количеств
+	counts := make(map[int]int)
+	for _, id := range req.ProductIDs {
+		counts[id]++
+	}
+	// Получим уникальные id для выборки
+	uniqueIDs := make([]int, 0, len(counts))
+	for id := range counts {
+		uniqueIDs = append(uniqueIDs, id)
+	}
+	productIDsArr := models.IntArray(uniqueIDs)
+	products, _ := getProductsByIDs(productIDsArr)
+	var orderPrice float64
+	for _, p := range products {
+		cnt := counts[p.ID]
+		orderPrice += p.Price * (1 - float64(p.Discount)/100.0) * float64(cnt)
+	}
 	orderResult, err := database.DB.Exec(
-		"INSERT INTO orders (user_id, product_ids, status, created_at) VALUES (?, ?, ?, ?)",
-		userID, string(productIDsJSON), "новый", time.Now(),
+		"INSERT INTO orders (user_id, product_ids, status, created_at, price) VALUES (?, ?, ?, ?, ?)",
+		userID, string(productIDsJSON), "новый", time.Now(), orderPrice,
 	)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -179,7 +213,7 @@ func GetUserOrders(c *fiber.Ctx) error {
 	}
 
 	query := `
-		SELECT id, user_id, product_ids, status, created_at
+		SELECT id, user_id, product_ids, status, price, created_at
 		FROM orders
 		WHERE user_id = ?
 		ORDER BY created_at DESC
@@ -196,7 +230,7 @@ func GetUserOrders(c *fiber.Ctx) error {
 	var orders []models.Order
 	for rows.Next() {
 		var order models.Order
-		err := rows.Scan(&order.ID, &order.UserID, &order.ProductIDs, &order.Status, &order.CreatedAt)
+		 err := rows.Scan(&order.ID, &order.UserID, &order.ProductIDs, &order.Status, &order.Price, &order.CreatedAt)
 		if err != nil {
 			continue
 		}
@@ -233,7 +267,7 @@ func getOrderWithProducts(orderID int) (*models.Order, error) {
 	var user models.User
 
 	query := `
-		SELECT o.id, o.user_id, o.product_ids, o.status, o.created_at,
+		SELECT o.id, o.user_id, o.product_ids, o.status, o.price, o.created_at,
 			   u.id, u.email, COALESCE(u.role, 'user'), COALESCE(u.name, ''), COALESCE(u.phone, ''), COALESCE(u.delivery_address, ''), u.created_at, u.updated_at
 		FROM orders o
 		JOIN users u ON o.user_id = u.id
@@ -241,7 +275,7 @@ func getOrderWithProducts(orderID int) (*models.Order, error) {
 	`
 
 	err := database.DB.QueryRow(query, orderID).Scan(
-		&order.ID, &order.UserID, &order.ProductIDs, &order.Status, &order.CreatedAt,
+		&order.ID, &order.UserID, &order.ProductIDs, &order.Status, &order.Price, &order.CreatedAt,
 		&user.ID, &user.Email, &user.Role, &user.Name, &user.Phone, &user.DeliveryAddress, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {

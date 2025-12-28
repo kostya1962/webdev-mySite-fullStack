@@ -42,9 +42,11 @@ func AddToCart(c *fiber.Ctx) error {
 		})
 	}
 
-	// Проверяем существование товара
+	// Проверяем существование товара и получим текущую цену и скидку
 	var productID int
-	err = database.DB.QueryRow("SELECT id FROM products WHERE id = ?", req.ProductID).Scan(&productID)
+	var prodPrice float64
+	var prodDiscount int
+	err = database.DB.QueryRow("SELECT id, price, discount FROM products WHERE id = ?", req.ProductID).Scan(&productID, &prodPrice, &prodDiscount)
 	if err == sql.ErrNoRows {
 		return c.Status(404).JSON(fiber.Map{
 			"error": "Product not found",
@@ -63,18 +65,21 @@ func AddToCart(c *fiber.Ctx) error {
 		userID, req.ProductID,
 	).Scan(&existingQuantity)
 
+	// Рассчитаем цену с учётом скидки и сохраним её в cart_items.price
+	discounted := prodPrice * (1 - float64(prodDiscount)/100.0)
+
 	switch err {
 	case sql.ErrNoRows:
 		// Добавляем новый товар в корзину
 		_, err = database.DB.Exec(
-			"INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)",
-			userID, req.ProductID, req.Quantity,
+			"INSERT INTO cart_items (user_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
+			userID, req.ProductID, req.Quantity, discounted,
 		)
 	case nil:
-		// Обновляем количество
+		// Обновляем количество и цену
 		_, err = database.DB.Exec(
-			"UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_id = ?",
-			req.Quantity, userID, req.ProductID,
+			"UPDATE cart_items SET quantity = ?, price = ? WHERE user_id = ? AND product_id = ?",
+			req.Quantity, discounted, userID, req.ProductID,
 		)
 	}
 

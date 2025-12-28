@@ -38,6 +38,7 @@ type Order struct {
 	UserID     int       `json:"user_id" db:"user_id"`
 	ProductIDs IntArray  `json:"product_ids" db:"product_ids"`
 	Status     string    `json:"status" db:"status"`
+	Price      float64   `json:"price" db:"price"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	User       *User     `json:"user,omitempty"`
 	Products   []Product `json:"products,omitempty"`

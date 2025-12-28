@@ -28,11 +28,8 @@ quantity.value = 1;
 
 
 function handleConfirmAdd() {
-    const productWithDiscount = {
-        ...product,
-        price: product?.price * (1 - product?.discount * 0.01),
-    };
-    cartStore.addToCart(productWithDiscount, quantity.value);
+    // Передаём оригинальную информацию о товаре; отображение цены происходит в компоненте с учётом discount
+    cartStore.addToCart(product, quantity.value);
 
     isAdded.value = false;
     quantity.value = 1;

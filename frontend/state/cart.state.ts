@@ -80,10 +80,11 @@ export const useCartStore = defineStore(
     }
 
     function getTotalPrice(): number {
-      return cartItems.value.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
-      );
+      return cartItems.value.reduce((total, item) => {
+        const discount = item.product?.discount || 0;
+        const unit = (item.product?.price || 0) * (1 - discount * 0.01);
+        return total + unit * item.quantity;
+      }, 0);
     }
 
     function getItemsCount(): number {

@@ -59,6 +59,23 @@
             minute: '2-digit'
         }).format(date);
     };
+
+    const getDiscountedProductPrice = (product: { price: number; discount: number; }) => {
+        const price = product.price ?? 0;
+        const discount = product.discount ?? 0;
+        return price * (1 - discount / 100);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getProductQuantity = (order: any, productId: number) => {
+        if (!order || !order.product_ids) return 0;
+        return order.product_ids.filter((id: number) => id === productId).length;
+    };
+
+    const getFormattedPrice = (price: number) => {
+        const value = Number(price || 0);
+        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
+    };
 </script>
 
 <template>
@@ -104,19 +121,34 @@
                                 <h3>Заказ #{{ order.id }}</h3>
                                 <span class="order-date">{{ formatDate(order.created_at) }}</span>
                             </div>
-                            <div class="order-status" :class="order.status">
-                                {{ order.status }}
-                            </div>
+                            <div class="order-summary">
+                                <div class="order-total">{{ getFormattedPrice(order.price) }}</div>
+                                <div class="order-status" :class="order.status">
+                                    {{ order.status }}
+                                </div>
+                        </div>
                         </div>
 
                         <div class="order-products">
                             <div v-if="order.products && order.products.length > 0">
                                 <div v-for="product in order.products" :key="product.id" class="product-item">
                                     <div class="product-name">{{ product.name }}</div>
-                                    <div class="product-details">
-                                        <span class="price">{{ product.price }} ₽</span>
-                                        <span class="sku">{{ product.sku }}</span>
-                                    </div>
+                                            <div class="product-details">
+                                                <span class="price">
+                                                    <template v-if="product.discount">
+                                                        <span class="old">{{ product.price }} ₽</span>
+                                                        <span class="new">
+                                                            {{ getDiscountedProductPrice(product).toFixed(2) }} ₽
+                                                            <span v-if="getProductQuantity(order, product.id) > 1" class="quantity" >&nbsp;× {{ getProductQuantity(order, product.id) }}</span>
+                                                        </span>
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ product.price }} ₽
+                                                    </template>
+                                                </span>
+                                                <span class="sku">{{ product.sku }}</span>
+                                                
+                                            </div>
                                 </div>
                             </div>
                             <div v-else class="no-products">Информация о товарах недоступна</div>
@@ -357,5 +389,34 @@
     .product-details {
         flex-direction: column;
     }
+}
+
+.order-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.order-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-black);
+}
+
+
+.price{
+    display: flex;
+    gap: 10px;
+}
+
+.old {
+    text-decoration: line-through;
+    color: #9e9e9e;
+}
+
+.new {
+    color: var(--color-accent);
+    font-weight: 600;
 }
 </style>

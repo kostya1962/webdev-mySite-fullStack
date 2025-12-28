@@ -9,6 +9,7 @@ export interface Order {
   status: string;
   created_at: string;
   user?: User;
+  price: number;
 }
 
 export interface GetOrdersResponse {

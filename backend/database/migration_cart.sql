@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
     user_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 1,
+    price REAL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     

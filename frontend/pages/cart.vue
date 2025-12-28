@@ -31,7 +31,13 @@ async function submitOrder() {
 
     if (!cartStore.cartItems.length) return;
 
-    const product_ids = cartStore.cartItems.map((i) => i.product.id);
+    // Разворачиваем product_ids с учётом количества каждого товара
+    const product_ids: number[] = [];
+    cartStore.cartItems.forEach((i) => {
+        for (let k = 0; k < (i.quantity || 0); k++) {
+            product_ids.push(i.product.id);
+        }
+    });
     
     console.log('[submitOrder] API_URL:', API_URL);
     console.log('[submitOrder] Token:', authStore.token.substring(0, 20) + '...');
@@ -61,6 +67,7 @@ async function submitOrder() {
         // Если успешно — очистим корзину и перейдём в профиль
         cartStore.clearCart();
         await router.push('/account');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
         console.error('Order submit error', e);
         console.error('[submitOrder] Error status:', e?.status);
@@ -97,7 +104,7 @@ const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product
                         />
                     </div>
                     <div class="item-right">
-                        <div class="price">{{ item.product.price }} ₽</div>
+                        <div class="price">{{ (item.product.price * (1 - (item.product.discount || 0) * 0.01)).toFixed(2) }} ₽</div>
                         <button class="remove" @click="cartStore.removeFromCart(item.product.id)">Удалить</button>
                     </div>
                 </div>
