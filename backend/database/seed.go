@@ -225,7 +225,7 @@ func SeedData() {
 		if err != nil {
 			log.Printf("Failed to create admin user: %v", err)
 		} else {
-			log.Println("Default admin created: admin@example.com / admin123")
+			log.Println("Default admin created: a@admin.ru / admin")
 		}
 	}
 }

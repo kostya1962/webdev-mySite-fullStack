@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import type { Product } from '~/interfaces/product.interface';
 
-    const config = useRuntimeConfig();
     const product = defineProps<Product>();
-    const image = computed(() => `url(${config.public.imageurl}${product.images?.[0] ?? ''})`);
+    const imagePrefix = useAPIimage();
+
+    const imageUrl = computed(() => {
+        const path = product.images?.[0] ?? '';
+        if (!path) return '';
+        const prefix = (imagePrefix ?? '').replace(/\/+$/, '');
+        const cleanPath = path.replace(/^\/+/, '');
+        const full = prefix ? `${prefix}/${cleanPath}` : `/${cleanPath}`;
+        return `url(${full})`;
+    });
 
     const formattedPrice = computed(() => {
         const value = Number(product.price * (1 - product.discount * 0.01) || 0);
@@ -20,7 +28,7 @@ import type { Product } from '~/interfaces/product.interface';
         @mouseenter="isHovered=true"
         @mouseleave="isHovered=false"
         >
-        <div class="card__image">
+        <div class="card__image" :style="{ backgroundImage: imageUrl }">
             <span v-if="product.discount > 0" class="card__discount">
                 - {{ product.discount }}%
             </span>
@@ -57,7 +65,7 @@ import type { Product } from '~/interfaces/product.interface';
         background-repeat: no-repeat;
         background-color: lightgray;
         padding: 16px;
-        background-image: v-bind(image);
+        /* background-image is applied inline to ensure correct URL normalization */
         display: flex;
         justify-content: space-between;
         align-items: start;

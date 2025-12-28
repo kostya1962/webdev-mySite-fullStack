@@ -10,13 +10,23 @@ useSeoMeta({
 });
 
 const API_URL = useAPI()
+const productsData = ref<GetProductsResponse | null>(null)
+const isLoading = ref(true)
 
-
-const { data: productsData } = await useFetch<GetProductsResponse>(API_URL + '/products', {
-    query: { limit: 1000, offset: 0 },
-    key: 'get-products-home',
+onMounted(async () => {
+    try {
+        const { data } = await useFetch<GetProductsResponse>(API_URL + '/products', {
+            query: { limit: 1000, offset: 0 },
+        })
+        if (data.value) {
+            productsData.value = data.value
+        }
+    } catch (e) {
+        console.error('Ошибка загрузки товаров:', e)
+    } finally {
+        isLoading.value = false
+    }
 })
-
 
 const recentProducts = computed(() => {
     const items: Product[] = productsData.value?.products ?? []
@@ -30,10 +40,9 @@ const recentProducts = computed(() => {
 
 <template>
     <div class="home-page">
-
-        <HomeBanner />
-
-
+        <ClientOnly>
+            <HomeBanner />
+        
         <section class="latest-section">
             <div class="latest-header">
                 <h1>Последние поступления</h1>
@@ -42,7 +51,8 @@ const recentProducts = computed(() => {
                 </span>
             </div>
 
-            <div class="latest-grid">
+            <div v-if="isLoading" class="loading-message">Загрузка товаров...</div>
+            <div v-else class="latest-grid">
                 <CatalogCard
                     v-for="product in recentProducts.slice(0, 8)"
                     :key="product.id"
@@ -50,7 +60,7 @@ const recentProducts = computed(() => {
                 />
             </div>
         </section>
-
+        </ClientOnly>
     </div>
 </template>
 
@@ -85,5 +95,12 @@ const recentProducts = computed(() => {
 
 .home-page {
     margin-bottom: 250px;
+}
+
+.loading-message {
+    font-size: 16px;
+    color: #707070;
+    text-align: center;
+    padding: 40px;
 }
 </style>

@@ -6,11 +6,16 @@
         news: NewsItem
     }>()
 
-    const config = useRuntimeConfig()
+    const imagePrefix = useAPIimage();
 
-    const image = computed(() => 
-    `url(${config.public.imageurl}${props.news.image})`
-    )
+    const image = computed(() => {
+        const path = props.news.image ?? '';
+        if (!path) return '';
+        const prefix = (imagePrefix ?? '').replace(/\/+$/, '');
+        const cleanPath = path.replace(/^\/+/, '');
+        const full = prefix ? `${prefix}/${cleanPath}` : `/${cleanPath}`;
+        return `url(${full})`;
+    })
 
     const formattedDateTime = computed(() => {
         const date = new Date(props.news.created_at)

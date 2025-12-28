@@ -118,7 +118,15 @@ func createTables() {
 		FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 	);`
 
-	tables := []string{userTable, categoryTable, productTable, reviewTable, newsTable, orderTable, bannerTable, cartItemsTable}
+	favoritesTable := `
+	CREATE TABLE IF NOT EXISTS favorites (
+		user_id INTEGER PRIMARY KEY,
+		product_ids TEXT,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+	);`
+
+	tables := []string{userTable, categoryTable, productTable, reviewTable, newsTable, orderTable, bannerTable, cartItemsTable, favoritesTable}
 
 	for _, table := range tables {
 		_, err := DB.Exec(table)

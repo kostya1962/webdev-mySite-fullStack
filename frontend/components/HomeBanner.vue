@@ -4,34 +4,55 @@ import type { Banner, GetBannersResponse } from '~/interfaces/banner.interface'
 const API_URLimage = useAPIimage();
 const API_URL = useAPI();
 const current = ref(0);
+const slides = ref<Banner[]>([]);
+const isLoading = ref(true);
+const error = ref<string | null>(null);
 
 function goTo(index: number) {
     current.value = index - 1;
 }
-const { data: bannersData, pending: isLoading } = await useFetch<GetBannersResponse>(API_URL + '/banners', {
-    key: 'get-banners-home',
-});
-const slides = computed<Banner[]>(() => {
-    return bannersData.value?.banners ?? []
-});
 
-console.log(`url(${API_URLimage}${slides.value[0]?.image})`);
-
-    function next() { 
-        current.value = (current.value + 1) % slides.value.length 
+onMounted(async () => {
+    try {
+        const { data } = await useFetch<GetBannersResponse>(API_URL + '/banners', {
+            key: 'get-banners-home',
+        });
+        if (data?.value?.banners) {
+            slides.value = data.value.banners;
+        }
+    } catch (e) {
+        console.error('Ошибка загрузки баннеров:', e);
+        error.value = 'Ошибка загрузки баннеров';
+    } finally {
+        isLoading.value = false;
     }
+});
 
-    const getDiscountedProductPrice = (product: { price: number; discount: number; }) => {
-        const price = product.price ?? 0;
-        const discount = product.discount ?? 0;
-        const value = Number(price * (1 - discount / 100) || 0);
-        return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
-    };
+const imageUrl = computed(() => {
+    const path = slides.value[current.value]?.image || '';
+    if (!path) return '';
+    const prefix = API_URLimage || '';
+    const cleanPrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    return cleanPrefix + cleanPath;
+});
+
+function next() {
+    if (!slides.value.length) return;
+    current.value = (current.value + 1) % slides.value.length;
+}
+
+const getDiscountedProductPrice = (product: { price: number; discount: number; }) => {
+    const price = product.price ?? 0;
+    const discount = product.discount ?? 0;
+    const value = Number(price * (1 - discount / 100) || 0);
+    return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(value);
+};
 </script>
 
 <template>
     <section v-if="slides.length || isLoading" class="home-banner">
-        <div v-if="slides.length" class="banner-rect"  :style="{ backgroundImage: slides[current] && slides[current]?.image ? `url(${API_URLimage}${slides[current]?.image})` : '' }" @click="next">
+        <div v-if="slides.length" class="banner-rect" :style="{ backgroundImage: imageUrl ? `url(${imageUrl})` : '' }" @click="next">
 
             <!-- slides -->
             <div v-for="(s, idx) in slides" :key="s.id" class="banner-slide"  :aria-hidden="idx !== current" :style="{ display: idx === current ? 'block' : 'none' }">

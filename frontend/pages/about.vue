@@ -55,43 +55,6 @@ useSeoMeta({
             </p>
         </div>
 
-        <div class="about-block">
-            <h2>Контакты</h2>
-
-            <div class="contacts">
-                <div class="contacts-info">
-                    <p class="text">
-                        <strong>Адрес:</strong><br />
-                        г. Чебоксары, Московский проспект, 15.
-                    </p>
-
-                    <p class="text">
-                        <strong>Телефоны:</strong><br />
-                        +7 (495) 123-45-67<br />
-                        +7 (999) 765-43-21
-                    </p>
-
-                    <p class="text">
-                        <strong>Режим работы:</strong><br />
-                        Пн–Пт: 10:00–19:00<br />
-                        Сб–Вс: выходной
-                    </p>
-                </div>
-
-                <div class="map">
-
-                        <iframe  
-                            src="https://yandex.ru/map-widget/v1/?from=mapframe&ll=47.224290%2C56.145715&mode=search&oid=1725040712&ol=biz&source=mapframe&um=constructor%3A9d9e6a5f3f6d2e3f3b4e5f6a7b8c9d0e&utm_source=mapframe&z=16.98" 
-                            width="560" 
-                            height="400" 
-                            frameborder="1" 
-                            allowfullscreen="true" 
-                            style="position:relative;">
-                        </iframe>
-
-                </div>
-            </div>
-        </div>
 
     </section>
 </template>
@@ -99,11 +62,10 @@ useSeoMeta({
 
 <style scoped>
     .about {
-        max-width: 900px;
+        max-width: 100%;
         margin: 0 auto;
         padding: 80px 20px;
-        font-family: "Inter", sans-serif;
-        color: #1a1a1a;
+        color: var(--color-black);
     }
 
     .about-header {

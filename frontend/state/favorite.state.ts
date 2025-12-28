@@ -53,12 +53,17 @@ export const useFavoriteStore = defineStore(
     }
 
     async function restore(email: string) {
-      const data = await $fetch<number[]>("/api/favorites", {
-        query: {
-          email: email,
-        },
-      });
-      favoriteIDs.value = Array.isArray(data) ? data : [];
+      try {
+        const data = await $fetch<number[]>("/api/favorites", {
+          query: {
+            email: email,
+          },
+        });
+        favoriteIDs.value = Array.isArray(data) ? data : [];
+      } catch (e) {
+        // If backend favorites endpoint is missing or request fails, keep local favorites
+        favoriteIDs.value = favoriteIDs.value || [];
+      }
     }
 
     return {

@@ -104,6 +104,11 @@ func main() {
 	cart.Get("/", handlers.GetCart)              // Получить корзину пользователя
 	cart.Delete("/", handlers.RemoveFromCart)    // Удалить товар из корзины
 
+	// Избранное (favorites)
+	favorites := api.Group("/favorites")
+	favorites.Post("/", handlers.SaveFavorites)
+	favorites.Get("/", handlers.GetFavorites)
+
 	// Запуск сервера
 	log.Println("Server starting on :3000")
 	log.Fatal(app.Listen(":3000"))

@@ -10,7 +10,7 @@
 
         <div class="footer__top">
             <ul>
-                <li><NuxtLink to="#">КОНТАКТЫ</NuxtLink></li>
+                <li><NuxtLink to="/contacts">КОНТАКТЫ</NuxtLink></li>
                 <li><NuxtLink to="#">УСЛВИЯ ПОКУПКИ </NuxtLink></li>
                 <li><NuxtLink to="#">ДОАСТВКА И ВОЗВРАТ</NuxtLink></li>
             </ul>

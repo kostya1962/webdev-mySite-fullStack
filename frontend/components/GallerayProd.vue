@@ -23,6 +23,18 @@
         }
     });
 
+    const joinUrl = (prefix: string, path: string) => {
+        const p = (prefix ?? '').replace(/\/+$/, '')
+        const cp = (path ?? '').replace(/^\/+/, '')
+        if (!cp) return ''
+        return p ? `${p}/${cp}` : `/${cp}`
+    }
+
+    const activeUrl = computed(() => {
+        const img = props.images[activeIndex.value] ?? ''
+        return joinUrl(API_URLimage, img)
+    })
+
     function next() { 
         activeIndex.value = (activeIndex.value + 1) % props.images.length 
     }
@@ -35,7 +47,7 @@
         <img
             v-for="(img, index) in images"
             :key="img"
-            :src="API_URLimage + img"
+            :src="joinUrl(API_URLimage, img)"
             class="thumb"
             :class="{ active: index === activeIndex }"
             @click="setActive(index)"
@@ -43,7 +55,7 @@
         </div>
 
 
-        <div class="preview" :style="{ backgroundImage: `url(${API_URLimage}${images[activeIndex]})` } " @click="next">
+        <div class="preview" :style="{ backgroundImage: activeUrl ? `url(${activeUrl})` : '' }" @click="next">
             <div class="progress">
                 <span
                     class="progress__active"
