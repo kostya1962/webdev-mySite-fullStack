@@ -7,6 +7,7 @@ useSeoMeta({
 
 
 </script>
+
 <template>
     <section class="about">
 
@@ -21,46 +22,80 @@ useSeoMeta({
         </div>
 
         <div class="about-block">
-        <h2>Тренды в украшениях</h2>
+            <h2>Тренды в украшениях</h2>
 
-        <div class="image-card">
-            <img
-                src="../assets/img/about1.jpg"
-                alt="Тренды в украшениях"
-            />
-        </div>
+            <div class="image-card">
+                <img src="../assets/img/about1.jpg" alt="Тренды в украшениях" />
+            </div>
 
-        <p class="text">
-            Мы внимательно следим за мировыми ювелирными трендами, чтобы предлагать
-            украшения, которые отражают дух времени. В коллекциях Shopper вы найдёте
-            баланс между минимализмом, элегантностью и выразительными акцентами.
-        </p>
+            <p class="text">
+                Мы внимательно следим за мировыми ювелирными трендами, чтобы предлагать
+                украшения, которые отражают дух времени. В коллекциях Shopper вы найдёте
+                баланс между минимализмом, элегантностью и выразительными акцентами.
+            </p>
 
-        <ul class="list">
-            <li>лаконичные формы и чистые линии</li>
-            <li>актуальные материалы и универсальные дизайны</li>
-        </ul>
+            <ul class="list">
+                <li>лаконичные формы и чистые линии</li>
+                <li>актуальные материалы и универсальные дизайны</li>
+            </ul>
         </div>
 
         <div class="about-block">
-        <h2>Сделано с любовью</h2>
+            <h2>Сделано с любовью</h2>
 
-        <div class="image-card">
-            <img
-                src="../assets/img/about2.jpg"
-                alt="Сделано с любовью"
-            />
+            <div class="image-card">
+                <img src="../assets/img/about2.jpg" alt="Сделано с любовью" />
+            </div>
+
+            <p class="text">
+                Каждое украшение в нашем магазине проходит тщательный отбор.
+                Мы уделяем внимание не только внешнему виду, но и комфорту в носке,
+                качеству материалов и долговечности изделий. Для нас важно,
+                чтобы украшения приносили радость каждый день.
+            </p>
         </div>
 
-        <p class="text">
-            Каждое украшение в нашем магазине проходит тщательный отбор.
-            Мы уделяем внимание не только внешнему виду, но и комфорту в носке,
-            качеству материалов и долговечности изделий. Для нас важно,
-            чтобы украшения приносили радость каждый день.
-        </p>
+        <div class="about-block">
+            <h2>Контакты</h2>
+
+            <div class="contacts">
+                <div class="contacts-info">
+                    <p class="text">
+                        <strong>Адрес:</strong><br />
+                        г. Чебоксары, Московский проспект, 15.
+                    </p>
+
+                    <p class="text">
+                        <strong>Телефоны:</strong><br />
+                        +7 (495) 123-45-67<br />
+                        +7 (999) 765-43-21
+                    </p>
+
+                    <p class="text">
+                        <strong>Режим работы:</strong><br />
+                        Пн–Пт: 10:00–19:00<br />
+                        Сб–Вс: выходной
+                    </p>
+                </div>
+
+                <div class="map">
+
+                        <iframe  
+                            src="https://yandex.ru/map-widget/v1/?from=mapframe&ll=47.224290%2C56.145715&mode=search&oid=1725040712&ol=biz&source=mapframe&um=constructor%3A9d9e6a5f3f6d2e3f3b4e5f6a7b8c9d0e&utm_source=mapframe&z=16.98" 
+                            width="560" 
+                            height="400" 
+                            frameborder="1" 
+                            allowfullscreen="true" 
+                            style="position:relative;">
+                        </iframe>
+
+                </div>
+            </div>
         </div>
+
     </section>
 </template>
+
 
 <style scoped>
     .about {
@@ -83,15 +118,16 @@ useSeoMeta({
     }
 
     .subtitle {
-        font-size: 18px;
+        font-size: 22px;
         font-weight: 500;
         margin-bottom: 50px;
+        margin-top: 50px;
     }
 
     .description {
         max-width: 100%;
         margin: 5% 0;
-        font-size: 14px;
+        font-size: 20px;
         line-height: 1.7;
         color: #666;
         text-align: left;
@@ -123,8 +159,8 @@ useSeoMeta({
     }
 
     .text {
-        max-width: 600px;
-        font-size: 14px;
+        max-width: 100%;
+        font-size: 20px;
         line-height: 1.7;
         color: #555;
         margin-bottom: 24px;
@@ -133,10 +169,34 @@ useSeoMeta({
     .list {
         padding-left: 18px;
         color: #555;
-        font-size: 14px;
+        font-size: 20px;
     }
 
     .list li {
         margin-bottom: 10px;
     }
+
+    .contacts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+    .contacts-info .text {
+        margin-bottom: 30px;
+    }
+
+    .map {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    /* Адаптив */
+    @media (max-width: 768px) {
+        .contacts {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
