@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/state/auth.state';
 import { useCartStore } from '~/state/cart.state';
+import InfoWindow from '~/components/InfoWindow.vue';
 
 useSeoMeta({
     title: 'Корзина товаров',
@@ -16,6 +17,8 @@ const API_URL = useRuntimeConfig().public.apiurl || '';
 const fullName = ref('');
 const phone = ref('');
 const deliveryAddress = ref('');
+const showErrorInfo = ref(false);
+const infoWindowKey = ref(0);
 
 onMounted(async () => {
     if (authStore.email) {
@@ -30,6 +33,13 @@ async function submitOrder() {
     }
 
     if (!cartStore.cartItems.length) return;
+
+    // Валидация всех обязательных полей
+    if (!fullName.value.trim() || !phone.value.trim() || !deliveryAddress.value.trim()) {
+        infoWindowKey.value++;
+        showErrorInfo.value = true;
+        return;
+    }
 
     // Разворачиваем product_ids с учётом количества каждого товара
     const product_ids: number[] = [];
@@ -85,6 +95,14 @@ const totalPrice = computed(() => items.value.reduce((t, it) => t + ((it.product
 <template>
     <section class="cart-page">
         <h1>Корзина</h1>
+
+        <InfoWindow 
+            v-if="showErrorInfo"
+            :key="infoWindowKey"
+            message="Необходимо заполнить все поля"
+            :duration="3000"
+            variant="error"
+        />
 
         <div v-if="!items.length" class="empty">Ваша корзина пуста</div>
 

@@ -6,5 +6,6 @@ export interface NewsItem {
   image: string;
 }
 export interface GetNewsResponse {
+  length: number;
   news: NewsItem[];
 }
